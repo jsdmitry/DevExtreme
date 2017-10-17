@@ -2,7 +2,6 @@
 
 var $ = require("jquery"),
     excelCreator = require("client_exporter").excel,
-    excelCreator = require("client_exporter").excel,
     coreLocalization = require("localization/core"),
     ExcelCreator = excelCreator.creator,
     internals = excelCreator.__internals,
@@ -368,38 +367,6 @@ QUnit.test("Excel file structure", function(assert) {
 
     // assert
     assert.deepEqual(paths, ["xl/", "xl/styles.xml", "xl/sharedStrings.xml", "xl/worksheets/", "xl/worksheets/sheet1.xml", "_rels/", "_rels/.rels", "xl/_rels/", "xl/_rels/workbook.xml.rels", "xl/workbook.xml", "[Content_Types].xml"], "paths");
-});
-
-QUnit.test("Check XML tag generating with content", function(assert) {
-    // arrange
-    var expected = "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\"><test>content</test></Relationship>",
-        attributes = [
-            { name: "Id", value: "rId1" },
-            {
-                name: "Type",
-                value: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"
-            },
-            { name: "Target", value: "xl/workbook.xml" }
-        ];
-
-    // act, assert
-    assert.strictEqual(this.excelCreator._getXMLTag("Relationship", attributes, "<test>content</test>"), expected);
-});
-
-QUnit.test("Check XML tag generating without content", function(assert) {
-    // arrange
-    var expected = "<Relationship Id=\"rId1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"xl/workbook.xml\" />",
-        attributes = [
-            { name: "Id", value: "rId1" },
-            {
-                name: "Type",
-                value: "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument"
-            },
-            { name: "Target", value: "xl/workbook.xml" }
-        ];
-
-    // act, assert
-    assert.strictEqual(this.excelCreator._getXMLTag("Relationship", attributes), expected);
 });
 
 QUnit.test("Generate merging XML", function(assert) {
