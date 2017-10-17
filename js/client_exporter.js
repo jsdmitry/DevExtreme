@@ -38,12 +38,12 @@ exports.export = function(data, options, getData) {
 
 exports.fileSaver = fileSaver;
 exports.excel = {
-    creator: require("./client_exporter/excel_creator").ExcelCreator,
-    getData: require("./client_exporter/excel_creator").getData,
-    formatConverter: require("./client_exporter/excel_format_converter")
+    creator: require("./client_exporter/excel/excel_creator").ExcelCreator,
+    getData: require("./client_exporter/excel/excel_creator").getData,
+    formatConverter: require("./client_exporter/excel/excel_format_converter")
 };
 ///#DEBUG
-exports.excel.__internals = require("./client_exporter/excel_creator").__internals;
+exports.excel.__internals = require("./client_exporter/excel/excel_creator").__internals;
 ///#ENDDEBUG
 exports.image = {
     creator: require("./client_exporter/image_creator").imageCreator,

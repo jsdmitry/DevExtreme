@@ -1,11 +1,11 @@
 "use strict";
 
-var typeUtils = require("../core/utils/type"),
-    stringUtils = require("../core/utils/string"),
-    numberFormatter = require("../localization/number"),
-    dateLocalization = require("../localization/date"),
-    getDateLDMLFormat = require("../localization/ldml/date.format").getFormat,
-    getLanguageID = require("../localization/language_codes").getLanguageId,
+var typeUtils = require("../../core/utils/type"),
+    stringUtils = require("../../core/utils/string"),
+    numberFormatter = require("../../localization/number"),
+    dateLocalization = require("../../localization/date"),
+    getDateLDMLFormat = require("../../localization/ldml/date.format").getFormat,
+    getLanguageID = require("../../localization/language_codes").getLanguageId,
     UNSUPPORTED_FORMAT_MAPPING = {
         quarter: "shortDate",
         quarterAndYear: "shortDate",
@@ -35,7 +35,7 @@ var PERIOD_REGEXP = /a+/g,
     SQUARE_CLOSE_BRACKET_REGEXP = /]/g,
     ANY_REGEXP = /./g;
 
-require("../localization/currency");
+require("../../localization/currency");
 
 var excelFormatConverter = module.exports = {
     _applyPrecision: function(format, precision) {
