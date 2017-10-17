@@ -1,6 +1,6 @@
 "use strict";
 
-var xmlUtils = require("client_exporter/excel/xmlUtils");
+var xmlUtils = require("client_exporter/excel/xml_utils");
 
 QUnit.module("XmlUtils", function() {
     QUnit.test("Check XML tag generating with content", function(assert) {

@@ -3,7 +3,7 @@
 var Class = require("../../core/class"),
     window = require("../core/utils/window").getWindow(),
     typeUtils = require("../../core/utils/type"),
-    xmlUtils = require("./xmlUtils"),
+    xmlUtils = require("./xml_utils"),
     extend = require("../../core/utils/extend").extend,
     inArray = require("../../core/utils/array").inArray,
     errors = require("../../ui/widget/ui.errors"),
