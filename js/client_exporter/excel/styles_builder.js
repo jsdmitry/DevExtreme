@@ -7,7 +7,7 @@ var Class = require("../../core/class"),
     CUSTOM_FORMAT_START_INDEX = 165;
 
 
-exports.StylesCollection = Class.inherit({
+exports.StylesBuilder = Class.inherit({
     _formats: [],
     _borders: [],
     _fills: [],
