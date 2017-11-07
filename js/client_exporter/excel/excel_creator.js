@@ -5,9 +5,9 @@ var Class = require("../../core/class"),
     typeUtils = require("../../core/utils/type"),
     xmlUtils = require("./xml_utils"),
     stylesBuilder = require("./styles_builder"),
+    sharedStringsBuilder = require("./shared_strings_builder"),
     extend = require("../../core/utils/extend").extend,
     errors = require("../../ui/widget/ui.errors"),
-    stringUtils = require("../../core/utils/string"),
     JSZip = require("jszip"),
     fileSaver = require("../file_saver"),
 
@@ -81,39 +81,6 @@ exports.ExcelCreator = Class.inherit({
         return result;
     },
 
-    _appendFormat: function(format, precision, dataType) {
-        var currency,
-            newFormat = this._formatObjectConverter(format, precision, dataType);
-
-        format = newFormat.format;
-        precision = newFormat.precision;
-        currency = newFormat.currency;
-        dataType = newFormat.dataType;
-
-        format = excelFormatConverter.convertFormat(format, precision, dataType, currency);
-        if(format) {
-            if(inArray(format, this._styleFormat) === -1) {
-                this._styleFormat.push(format);
-            }
-
-            return inArray(format, this._styleFormat) + 1;
-        }
-    },
-
-    _appendString: function(value) {
-        if(typeUtils.isDefined(value)) {
-            value = String(value);
-            if(value.length) {
-                value = stringUtils.encodeHtml(value);
-                if(this._stringHash[value] === undefined) {
-                    this._stringHash[value] = this._stringArray.length;
-                    this._stringArray.push(value);
-                }
-                return this._stringHash[value];
-            }
-        }
-    },
-
     _getExcelDateValue: function(date) {
         var days,
             totalTime;
@@ -141,7 +108,7 @@ exports.ExcelCreator = Class.inherit({
 
         switch(type) {
             case "s":
-                value = this._appendString(value);
+                value = this._sharedStringsBuilder.appendString(value);
                 break;
 
             case "d":
@@ -265,23 +232,8 @@ exports.ExcelCreator = Class.inherit({
     },
 
     _generateStringsXML: function() {
-        var folder = this._zip.folder(XL_FOLDER_NAME),
-            stringIndex,
-            stringsLength = this._stringArray.length,
-            sharedStringXml = xmlUtils.XML_TAG;
-
-        for(stringIndex = 0; stringIndex < stringsLength; stringIndex++) {
-            this._stringArray[stringIndex] = xmlUtils.getXMLTag("si", [], xmlUtils.getXMLTag("t", [], this._stringArray[stringIndex]));
-        }
-        sharedStringXml = sharedStringXml + xmlUtils.getXMLTag("sst", [
-            { name: "xmlns", value: xmlUtils.OPEN_XML_FORMAT_URL + "/spreadsheetml/2006/main" },
-            { name: "count", value: this._stringArray.length },
-            { name: "uniqueCount", value: this._stringArray.length }
-        ], this._stringArray.join(""));
-
-        folder.file(SHAREDSTRING_FILE_NAME, sharedStringXml);
-
-        this._stringArray = [];
+        var folder = this._zip.folder(XL_FOLDER_NAME);
+        folder.file(SHAREDSTRING_FILE_NAME, this._sharedStringsBuilder.getXML());
     },
 
     _getPaneXML: function() {
@@ -468,20 +420,20 @@ exports.ExcelCreator = Class.inherit({
 
     _disposeBuilders: function() {
         this._stylesBuilder.dispose();
+        this._sharedStringsBuilder.dispose();
     },
 
     ctor: function(dataProvider, options) {
         this._rtlEnabled = options && !!options.rtlEnabled;
         this._options = options;
         this._maxIndex = [1, 2];
-        this._stringArray = [];
-        this._stringHash = {};
         this._colsArray = [];
         this._cellsArray = [];
         this._needSheetPr = false;
         this._dataProvider = dataProvider;
 
         this._stylesBuilder = new stylesBuilder.StylesBuilder();
+        this._sharedStringsBuilder = new sharedStringsBuilder.SharedStringsBuilder();
 
         if(typeUtils.isDefined(JSZip)) {
             this._zip = new JSZip();

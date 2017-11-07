@@ -46,43 +46,6 @@ QUnit.test("Get excel date value when value is null", function(assert) {
     assert.ok(!this.excelCreator._getExcelDateValue(null, "dd/MM/yyyy H:MM:s"));
 });
 
-QUnit.test("stringArray unique appending", function(assert) {
-    // act
-    this.excelCreator._prepareStyleData();
-    this.excelCreator._prepareCellData();
-
-    // assert
-    assert.ok(exportMocks.checkUniqueValue(this.excelCreator._stringArray));
-});
-
-QUnit.test("Symbols '<','>' are replaced with '&lt;', '&gt;' in sharedString array T273272", function(assert) {
-    // arrange
-    this.excelCreator._stringArray = [];
-
-    // act
-    this.excelCreator._appendString('aa>aa');
-    this.excelCreator._appendString('bb<bb');
-
-    // assert
-    assert.equal(this.excelCreator._stringArray[0], "aa&gt;aa", "> replacing ok");
-    assert.equal(this.excelCreator._stringArray[1], "bb&lt;bb", "< replacing ok");
-});
-
-QUnit.test("Append not string value when type is string_T259295", function(assert) {
-    // arrange
-    this.excelCreator._stringArray = [];
-
-    // act
-    this.excelCreator._appendString(123.34);
-    this.excelCreator._appendString(new Date("10/9/2000"));
-    this.excelCreator._appendString(true);
-
-    // assert
-    assert.equal(this.excelCreator._stringArray[0], "123.34", "number type");
-    assert.ok(this.excelCreator._stringArray[1].indexOf("Mon Oct") > -1, "date type");
-    assert.equal(this.excelCreator._stringArray[2], "true", "boolean type");
-});
-
 QUnit.test("styleArray generating", function(assert) {
     // act
     this.dataProvider.getStyles.returns([
@@ -110,7 +73,7 @@ QUnit.test("stringArray generating", function(assert) {
     // act
     this.excelCreator._prepareStyleData();
     this.excelCreator._prepareCellData();
-    strings = this.excelCreator._stringArray;
+    strings = this.excelCreator._sharedStringsBuilder._sharedStrings;
 
     // assert
     assert.equal(strings.length, 5, "strings count");
@@ -603,19 +566,6 @@ QUnit.test("SharedString XML content is valid", function(assert) {
             done();
         }
     });
-});
-
-QUnit.test("EncodeHtml for sharedStrings", function(assert) {
-    // arrange
-    this.excelCreator = new ExcelCreator(new exportMocks.MockDataProvider(), {});
-
-    // act
-    this.excelCreator._appendString("<div cssClass=\"myCss\" data='dfsdf'><p>La & la & ba</p></div>");
-    this.excelCreator._appendString("<div cssClass=\"myCss\" data='dfsdf'><p>La & la & ba</p></div>");
-
-    // assert
-    assert.equal(this.excelCreator._stringArray.length, 1, "stringArray length");
-    assert.equal(this.excelCreator._stringArray[0], "&lt;div cssClass=&quot;myCss&quot; data=&#39;dfsdf&#39;&gt;&lt;p&gt;La &amp; la &amp; ba&lt;/p&gt;&lt;/div&gt;");
 });
 
 //T267460
