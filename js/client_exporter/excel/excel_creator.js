@@ -4,22 +4,15 @@ var Class = require("../../core/class"),
     window = require("../core/utils/window").getWindow(),
     typeUtils = require("../../core/utils/type"),
     xmlUtils = require("./xml_utils"),
+    stylesBuilder = require("./styles_builder"),
     extend = require("../../core/utils/extend").extend,
-    inArray = require("../../core/utils/array").inArray,
     errors = require("../../ui/widget/ui.errors"),
     stringUtils = require("../../core/utils/string"),
     JSZip = require("jszip"),
     fileSaver = require("../file_saver"),
-    excelFormatConverter = require("./excel_format_converter"),
 
     GROUP_SHEET_PR_XML = "<sheetPr><outlinePr summaryBelow=\"0\"/></sheetPr>",
     SINGLE_SHEET_PR_XML = "<sheetPr/>",
-    BASE_STYLE_XML = "<fonts count=\"2\"><font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Calibri\"/><family val=\"2\"/>" +
-                     "<scheme val=\"minor\"/></font><font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Calibri\"/>" +
-                     "<family val=\"2\"/><scheme val=\"minor\"/></font></fonts><fills count=\"1\"><fill><patternFill patternType=\"none\"/>" +
-                     "</fill></fills><borders count=\"1\"><border><left style=\"thin\"><color rgb=\"FFD3D3D3\"/></left><right style=\"thin\">" +
-                     "<color rgb=\"FFD3D3D3\"/></right><top style=\"thin\"><color rgb=\"FFD3D3D3\"/></top><bottom style=\"thin\"><color rgb=\"FFD3D3D3\"/>" +
-                     "</bottom></border></borders><cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\"/></cellStyleXfs>",
     RELATIONSHIP_PART_NAME = "rels",
     XL_FOLDER_NAME = "xl",
     WORKBOOK_FILE_NAME = "workbook.xml",
@@ -37,9 +30,7 @@ var Class = require("../../core/class"),
     EXCEL_START_TIME = Date.UTC(1899, 11, 30),
     DAYS_COUNT_BEFORE_29_FEB_1900 = 60,
 
-    BOLD_STYLES_COUNT = 4,
-    MAX_DIGIT_WIDTH_IN_PIXELS = 7, // Calibri font with 11pt size
-    CUSTOM_FORMAT_START_INDEX = 165;
+    MAX_DIGIT_WIDTH_IN_PIXELS = 7; // Calibri font with 11pt size
 
 exports.ExcelCreator = Class.inherit({
     _getCellIndex: function(rowIndex, cellIndex) {
@@ -90,15 +81,16 @@ exports.ExcelCreator = Class.inherit({
         return result;
     },
 
-    _appendFormat: function(format, dataType) {
+    _appendFormat: function(format, precision, dataType) {
         var currency,
-            newFormat = this._formatObjectConverter(format, dataType);
+            newFormat = this._formatObjectConverter(format, precision, dataType);
 
         format = newFormat.format;
+        precision = newFormat.precision;
         currency = newFormat.currency;
         dataType = newFormat.dataType;
 
-        format = excelFormatConverter.convertFormat(format, newFormat.precision, dataType, currency);
+        format = excelFormatConverter.convertFormat(format, precision, dataType, currency);
         if(format) {
             if(inArray(format, this._styleFormat) === -1) {
                 this._styleFormat.push(format);
@@ -141,8 +133,7 @@ exports.ExcelCreator = Class.inherit({
         var dataProvider = this._dataProvider,
             value = dataProvider.getCellValue(rowIndex, cellIndex),
             type = this._getDataType(dataProvider.getCellType(rowIndex, cellIndex)),
-            formatID = this._styleArray[this._dataProvider.getStyleId(rowIndex, cellIndex)].formatID,
-            format = typeUtils.isNumeric(formatID) ? this._styleFormat[formatID - 1] : null;
+            format;
 
         if(type === "d" && !typeUtils.isDate(value)) {
             type = "s";
@@ -154,6 +145,7 @@ exports.ExcelCreator = Class.inherit({
                 break;
 
             case "d":
+                format = this._stylesBuilder.getFormatByStyleID(this._dataProvider.getStyleId(rowIndex, cellIndex));
                 value = this._getExcelDateValue(value, format);
                 type = "n";
                 break;
@@ -201,14 +193,6 @@ exports.ExcelCreator = Class.inherit({
         return result;
     },
 
-    _getBoldStyleID: function(alignment) {
-        for(var i = 0; i < BOLD_STYLES_COUNT - 1; i++) {
-            if(this._styleArray[i].alignment === alignment) {
-                return i;
-            }
-        }
-    },
-
     _calculateWidth: function(pixelsWidth) {
         pixelsWidth = parseInt(pixelsWidth, 10);
         if(!pixelsWidth || pixelsWidth < 5) pixelsWidth = 100;
@@ -224,10 +208,10 @@ exports.ExcelCreator = Class.inherit({
         });
 
         styles.forEach(function(style) {
-            that._styleArray.push({
+            that._stylesBuilder.addStyle({
                 bold: !!style.bold,
                 alignment: style.alignment || "left",
-                formatID: that._appendFormat(style.format, style.dataType),
+                format: that._formatObjectConverter(style.format, style.dataType),
                 wrapText: style.wrapText
             });
         });
@@ -277,49 +261,7 @@ exports.ExcelCreator = Class.inherit({
     },
 
     _generateStylesXML: function() {
-        var that = this,
-            folder = that._zip.folder(XL_FOLDER_NAME),
-            xmlStyles = [],
-            formatIndex,
-            XML = "";
-
-        for(formatIndex = 0; formatIndex < that._styleFormat.length; formatIndex++) {
-            that._styleFormat[formatIndex] = xmlUtils.getXMLTag("numFmt", [
-                { name: "numFmtId", value: Number(formatIndex) + CUSTOM_FORMAT_START_INDEX },
-                { name: "formatCode", value: that._styleFormat[formatIndex] }
-            ]);
-        }
-
-        XML = XML + xmlUtils.getXMLTag("numFmts", [{ name: "count", value: that._styleFormat.length }], that._styleFormat.join("")) + BASE_STYLE_XML;
-
-        this._styleArray.forEach(function(style) {
-            xmlStyles.push(xmlUtils.getXMLTag("xf", [
-                { name: "xfId", value: 0 },
-                { name: "applyAlignment", value: 1 },
-                { name: "fontId", value: Number(!!style.bold) },
-                { name: "applyNumberFormat", value: (typeUtils.isDefined(style.formatID)) ? 1 : 0 },
-                {
-                    name: "numFmtId",
-                    value: typeUtils.isDefined(style.formatID) ? Number(style.formatID) + CUSTOM_FORMAT_START_INDEX - 1 : 0
-                }
-            ], xmlUtils.getXMLTag("alignment", [
-                { name: "vertical", value: "top" },
-                { name: "wrapText", value: Number(!!style.wrapText) },
-                { name: "horizontal", value: style.alignment }
-            ])));
-        });
-
-        XML = XML + xmlUtils.getXMLTag("cellXfs", [{ name: "count", value: xmlStyles.length }], xmlStyles.join(""));
-        XML = XML + xmlUtils.getXMLTag("cellStyles", [{ name: "count", value: 1 }], xmlUtils.getXMLTag("cellStyle", [
-            { name: "name", value: "Normal" },
-            { name: "xfId", value: 0 },
-            { name: "builtinId", value: 0 }
-        ]));
-
-        XML = xmlUtils.XML_TAG + xmlUtils.getXMLTag("styleSheet", [{ name: "xmlns", value: xmlUtils.OPEN_XML_FORMAT_URL + "/spreadsheetml/2006/main" }], XML);
-        folder.file(STYLE_FILE_NAME, XML);
-
-        that._styleArray = [];
+        this._zip.folder(XL_FOLDER_NAME).file(STYLE_FILE_NAME, this._stylesBuilder.getXML());
     },
 
     _generateStringsXML: function() {
@@ -524,18 +466,22 @@ exports.ExcelCreator = Class.inherit({
         this._generateWorksheetXML();
     },
 
+    _disposeBuilders: function() {
+        this._stylesBuilder.dispose();
+    },
+
     ctor: function(dataProvider, options) {
         this._rtlEnabled = options && !!options.rtlEnabled;
         this._options = options;
         this._maxIndex = [1, 2];
         this._stringArray = [];
         this._stringHash = {};
-        this._styleArray = [];
         this._colsArray = [];
         this._cellsArray = [];
-        this._styleFormat = [];
         this._needSheetPr = false;
         this._dataProvider = dataProvider;
+
+        this._stylesBuilder = new stylesBuilder.StylesBuilder();
 
         if(typeUtils.isDefined(JSZip)) {
             this._zip = new JSZip();
@@ -554,6 +500,10 @@ exports.ExcelCreator = Class.inherit({
         return this._dataProvider.ready();
     },
 
+    dispose: function() {
+        this._disposeBuilders();
+    },
+
     getData: function(isBlob) {
         var options = {
             type: isBlob ? "blob" : "base64",
@@ -563,6 +513,7 @@ exports.ExcelCreator = Class.inherit({
 
         this._checkZipState();
         this._generateContent();
+        this._disposeBuilders();
         return this._zip.generateAsync ?
             this._zip.generateAsync(options) :
             this._zip.generate(options);

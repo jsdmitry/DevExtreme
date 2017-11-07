@@ -1,18 +1,16 @@
 "use strict";
 
 var Class = require("../../core/class"),
+    typeUtils = require("../../core/utils/type"),
     inArray = require("../../core/utils/array").inArray,
     xmlUtils = require("./xml_utils"),
+
+    excelFormatConverter = require("./excel_format_converter"),
 
     CUSTOM_FORMAT_START_INDEX = 165;
 
 
 exports.StylesBuilder = Class.inherit({
-    _formats: [],
-    _borders: [],
-    _fills: [],
-    _fonts: [],
-
     _getFonts: function() {
         return "<fonts count=\"2\"><font><sz val=\"11\"/><color theme=\"1\"/><name val=\"Calibri\"/><family val=\"2\"/>" +
         "<scheme val=\"minor\"/></font><font><b/><sz val=\"11\"/><color theme=\"1\"/><name val=\"Calibri\"/>" +
@@ -48,6 +46,26 @@ exports.StylesBuilder = Class.inherit({
     },
 
     _getCellXFS: function() {
+        var xmlStyles = [];
+
+        this._styles.forEach(function(style) {
+            xmlStyles.push(xmlUtils.getXMLTag("xf", [
+                { name: "xfId", value: 0 },
+                { name: "applyAlignment", value: 1 },
+                { name: "fontId", value: Number(!!style.bold) },
+                { name: "applyNumberFormat", value: (typeUtils.isDefined(style.formatID)) ? 1 : 0 },
+                {
+                    name: "numFmtId",
+                    value: typeUtils.isDefined(style.formatID) ? Number(style.formatID) + CUSTOM_FORMAT_START_INDEX - 1 : 0
+                }
+            ], xmlUtils.getXMLTag("alignment", [
+                { name: "vertical", value: "top" },
+                { name: "wrapText", value: Number(!!style.wrapText) },
+                { name: "horizontal", value: style.alignment }
+            ])));
+        });
+
+        return xmlUtils.getXMLTag("cellXfs", [{ name: "count", value: xmlStyles.length }], xmlStyles.join(""));
     },
 
     _getCellStyles: function() {
@@ -64,7 +82,6 @@ exports.StylesBuilder = Class.inherit({
 
     _getStyleSheet: function() {
         var innerXml = [];
-
         innerXml.push(this._getNumFMTS());
         innerXml.push(this._getFonts());
         innerXml.push(this._getFills());
@@ -76,20 +93,49 @@ exports.StylesBuilder = Class.inherit({
         return xmlUtils.getXMLTag("styleSheet", [{
             name: "xmlns",
             value: xmlUtils.OPEN_XML_FORMAT_URL + "/spreadsheetml/2006/main"
-        }], innerXml.join());
+        }], innerXml.join(""));
     },
 
-    addFormat: function(format) {
-        if(format) {
-            if(inArray(format, this._formats) === -1) {
-                this._formats.push(format);
+    _addFormat: function(options) {
+        var excelFormat = excelFormatConverter.convertFormat(options.format, options.precision, options.dataType, options.currency);
+        if(excelFormat) {
+            if(inArray(excelFormat, this._formats) === -1) {
+                this._formats.push(excelFormat);
             }
 
-            return inArray(format, this._formats) + 1;
+            return inArray(excelFormat, this._formats) + 1;
         }
+    },
+
+    _init: function() {
+        this._formats = [];
+        this._styles = [];
+    },
+
+    ctor: function() {
+        this._init();
+    },
+
+    addStyle: function(style) {
+        this._styles.push({
+            bold: style.bold,
+            alignment: style.alignment,
+            formatID: this._addFormat(style.format),
+            wrapText: style.wrapText
+        });
+    },
+
+    getFormatByStyleID: function(styleID) {
+        var formatID = this._styles[styleID].formatID;
+        return typeUtils.isNumeric(formatID) ? this._formats[formatID - 1] : null;
     },
 
     getXML: function() {
         return xmlUtils.XML_TAG + this._getStyleSheet();
+    },
+
+    dispose: function() {
+        this._formats = [];
+        this._styles = [];
     }
 });
