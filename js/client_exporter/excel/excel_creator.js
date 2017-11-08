@@ -146,7 +146,8 @@ exports.ExcelCreator = Class.inherit({
                 cellsArray.push({
                     style: dataProvider.getStyleId(rowIndex, cellIndex),
                     value: cellData.value,
-                    type: cellData.type
+                    type: cellData.type,
+                    cellIndex: that._getCellIndex(rowIndex + 1, cellIndex)
                 });
             }
 
@@ -309,7 +310,7 @@ exports.ExcelCreator = Class.inherit({
                 cellData = this._cellsArray[rowIndex][colIndex];
 
                 xmlCells.push(xmlUtils.getXMLTag("c", [
-                    { name: "r", value: this._getCellIndex(rowIndex + 1, colIndex) },
+                    { name: "r", value: cellData.cellIndex },
                     { name: "s", value: cellData.style },
                     { name: "t", value: cellData.type }
                 ], (typeUtils.isDefined(cellData.value)) ? xmlUtils.getXMLTag("v", [], cellData.value) : null));
