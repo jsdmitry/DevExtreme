@@ -6,7 +6,7 @@ var Class = require("../../core/class"),
     typeUtils = require("../../core/utils/type"),
 
     ROWS_COUNT_PERFORMANCE_LIMIT = 10000,
-    //START_CELL_INDEX = "A1",
+    // START_CELL_INDEX = "A1",
 
     GROUP_SHEET_PR_XML = "<sheetPr><outlinePr summaryBelow=\"0\"/></sheetPr>",
     SINGLE_SHEET_PR_XML = "<sheetPr/>";

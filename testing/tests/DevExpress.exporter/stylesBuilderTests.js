@@ -12,7 +12,7 @@ QUnit.module("Formatting", {
     }
 }, function() {
     QUnit.test("Append unique format", function(assert) {
-        //act
+        // act
         this._stylesBuilder.addStyle({
             format: {
                 format: "currency"
@@ -31,7 +31,7 @@ QUnit.module("Formatting", {
             }
         });
 
-        //assert
+        // assert
         assert.ok(exportMocks.checkUniqueValue(this._stylesBuilder._formats));
     });
 });

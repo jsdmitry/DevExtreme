@@ -483,8 +483,6 @@ QUnit.test("Workwheet XML content is valid", function(assert) {
     });
 });
 
-
-
 QUnit.test("Generating worksheet with groups and three rows of the header", function(assert) {
     // arrange
     var done = assert.async();
@@ -510,9 +508,6 @@ QUnit.test("Generating worksheet with groups and three rows of the header", func
         }
     });
 });
-
-
-
 
 QUnit.test("Style XML content is valid", function(assert) {
     // arrange
@@ -568,7 +563,7 @@ QUnit.test("SharedString XML content is valid", function(assert) {
     });
 });
 
-//T267460
+// T267460
 QUnit.test("CalculateWidth convert 0 and undefined to min value", function(assert) {
     // act, assert
     assert.equal(this.excelCreator._calculateWidth(0), 13.57, "Return min value width zerow");
