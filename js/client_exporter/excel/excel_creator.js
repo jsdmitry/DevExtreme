@@ -1,7 +1,7 @@
 "use strict";
 
 var Class = require("../../core/class"),
-    window = require("../core/utils/window").getWindow(),
+    window = require("../../core/utils/window").getWindow(),
     typeUtils = require("../../core/utils/type"),
     xmlUtils = require("./xml_utils"),
     stylesBuilder = require("./styles_builder"),

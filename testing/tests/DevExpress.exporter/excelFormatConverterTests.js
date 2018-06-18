@@ -123,27 +123,27 @@ QUnit.module("Date time formatting", function() {
         }
     });
 
-    //T495544
+    // T495544
     QUnit.test("Date format converting when format is custom", function(assert) {
-        //act
+        // act
         var excelFormat = formatConverter.convertFormat('dd/MMM/yyyy', null, "date");
 
-        //assert
+        // assert
         assert.strictEqual(excelFormat, "[$-9]dd\\/MMM\\/yyyy", "excel format for custom date format");
     });
 
-    //T476869
+    // T476869
     QUnit.test("Number format converting when format is not string", function(assert) {
         var format = function(x) { return x + " $"; };
 
-        //act
+        // act
         var excelFormat = formatConverter.convertFormat(format, null, "number");
 
-        //assert
+        // assert
         assert.strictEqual(excelFormat, undefined, "no excel format for format as function");
     });
 
-    //T454328
+    // T454328
     QUnit.test("Date time format as function converting", function(assert) {
         // arrange
         var month_names = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -194,7 +194,7 @@ QUnit.module("Date time formatting", function() {
             "[$-9]d,ddd": function(value) { return value.getDate().toString() + "," + day_names_short[value.getDay()]; },
             "[$-9]yyyy\\/MM\\/dd": function(value) { return expected["[$-9]yyyy"](value) + "/" + expected["[$-9]MM"](value) + "/" + expected["[$-9]dd"](value); },
             "[$-9]dddd, MMMM d, yyyy": function(value) { return expected["[$-9]dddd"][0](value) + ", " + expected["[$-9]MMMM"](value) + " " + expected["[$-9]d"](value) + ", " + expected["[$-9]yyyy"](value); },
-            "[$-9]dd-MMM-yyyy": function(value) { return expected["[$-9]dd"](value) + "-" + expected["[$-9]MMM"](value) + "-" + expected["[$-9]yyyy"](value); }, //T489981
+            "[$-9]dd-MMM-yyyy": function(value) { return expected["[$-9]dd"](value) + "-" + expected["[$-9]MMM"](value) + "-" + expected["[$-9]yyyy"](value); }, // T489981
             "[$-2010009]d\\/M\\/yyyy": function(value) { return formatArabicNumber(expected["[$-9]d"](value)) + "/" + formatArabicNumber(expected["[$-9]M"](value)) + "/" + formatArabicNumber(expected["[$-9]yyyy"](value)); }
         };
 
@@ -208,13 +208,13 @@ QUnit.module("Date time formatting", function() {
         }
     });
 
-    //T457272
+    // T457272
     QUnit.test("shortDate format for user language", function(assert) {
         var oldLocale = coreLocalization.locale();
 
         coreLocalization.locale("cs");
 
-        //act
+        // act
         var excelFormat = formatConverter.convertFormat(function(value) {
             return value.getDate().toString() + ". " + value.getMonth().toString() + ". " + value.getFullYear().toString();
         }, null, "date");
@@ -223,5 +223,13 @@ QUnit.module("Date time formatting", function() {
 
         // assert
         assert.strictEqual(excelFormat, "[$-5]d. M. yyyy", "shortDate format for cs locale");
+    });
+
+    QUnit.test("Date format converting when format with square brackets", function(assert) {
+        // act
+        var excelFormat = formatConverter.convertFormat('[h:mm aaa]', null, "date");
+
+        // assert
+        assert.strictEqual(excelFormat, "[$-9]\\[H:mm AM/PM\\]", "excel format with square brackets");
     });
 });
