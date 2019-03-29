@@ -25,6 +25,7 @@ var TOOLBAR_CLASS = "dx-toolbar",
     TEXT_BUTTON_MODE = "text",
     DEFAULT_BUTTON_TYPE = "default",
 
+    TOOLBAR_MULTILINE_CLASS = "dx-toolbar-multiline",
     TOOLBAR_ITEM_DATA_KEY = "dxToolbarItemDataKey";
 
 var ToolbarBase = AsyncCollectionWidget.inherit({
@@ -163,13 +164,17 @@ var ToolbarBase = AsyncCollectionWidget.inherit({
 
         this._$toolbarItemsContainer = $("<div>")
             .addClass(TOOLBAR_ITEMS_CONTAINER_CLASS)
+            .toggleClass(TOOLBAR_MULTILINE_CLASS, this.option("multiline"))
             .appendTo(this.$element());
     },
 
     _renderSections: function() {
         var $container = this._$toolbarItemsContainer,
             that = this;
-        each(["before", "center", "after"], function() {
+
+        var sectionsNames = this.option("multiline") ? ["before"] : ["before", "center", "after"];
+
+        each(sectionsNames, function() {
             var sectionClass = "dx-toolbar-" + this,
                 $section = $container.find("." + sectionClass);
 
@@ -184,15 +189,17 @@ var ToolbarBase = AsyncCollectionWidget.inherit({
     _arrangeItems: function(elementWidth) {
         elementWidth = elementWidth || this.$element().width();
 
-        this._$centerSection.css({
-            margin: "0 auto",
-            float: "none"
-        });
-
         var beforeRect = this._$beforeSection.get(0).getBoundingClientRect(),
-            afterRect = this._$afterSection.get(0).getBoundingClientRect();
+            afterRect = this._$afterSection && this._$afterSection.get(0).getBoundingClientRect();
 
-        this._alignCenterSection(beforeRect, afterRect, elementWidth);
+        if(this._$centerSection) {
+            this._$centerSection.css({
+                margin: "0 auto",
+                float: "none"
+            });
+
+            this._alignCenterSection(beforeRect, afterRect, elementWidth);
+        }
 
         var $label = this._$toolbarItemsContainer.find(TOOLBAR_LABEL_SELECTOR).eq(0),
             $section = $label.parent();
@@ -312,7 +319,7 @@ var ToolbarBase = AsyncCollectionWidget.inherit({
     },
 
     _renderItem: function(index, item, itemContainer, $after) {
-        var location = item.location || "center",
+        var location = this.option("multiline") ? "before" : (item.location || "center"),
             container = itemContainer || this["_$" + location + "Section"],
             itemHasText = !!(item.text || item.html),
             itemElement = this.callBase(index, item, container, $after);

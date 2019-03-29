@@ -9,6 +9,7 @@ var $ = require("../core/renderer"),
     DropDownMenuStrategy = require("./toolbar/ui.toolbar.strategy.drop_down_menu"),
     ListBottomStrategy = require("./toolbar/ui.toolbar.strategy.list_bottom"),
     ListTopStrategy = require("./toolbar/ui.toolbar.strategy.list_top"),
+    MultilineStrategy = require("./toolbar/ui.toolbar.strategy.multiline"),
     ToolbarBase = require("./toolbar/ui.toolbar.base"),
     ChildDefaultTemplate = require("./widget/child_default_template");
 
@@ -16,12 +17,17 @@ var STRATEGIES = {
     actionSheet: ActionSheetStrategy,
     dropDownMenu: DropDownMenuStrategy,
     listBottom: ListBottomStrategy,
-    listTop: ListTopStrategy
+    listTop: ListTopStrategy,
+    multiline: MultilineStrategy
 };
 
 var TOOLBAR_AUTO_HIDE_ITEM_CLASS = "dx-toolbar-item-auto-hide",
     TOOLBAR_AUTO_HIDE_TEXT_CLASS = "dx-toolbar-text-auto-hide",
-    TOOLBAR_HIDDEN_ITEM = "dx-toolbar-item-invisible";
+    TOOLBAR_HIDDEN_ITEM = "dx-toolbar-item-invisible",
+    TOOLBAR_ROWS_SPACE_CLASS = "dx-toolbar-rows-space",
+    TOOLBAR_ITEMS_WRAP_CLASS = "dx-toolbar-items-wrap",
+    TOOLBAR_LAST_ITEM_CLASS = "dx-toolbar-last-item",
+    TOOLBAR_ITEM_CLASS = "dx-toolbar-item";
 
 /**
 * @name dxToolbar
@@ -205,6 +211,7 @@ var Toolbar = ToolbarBase.inherit({
         this._menuStrategy.toggleMenuVisibility(false, true);
         this.callBase();
         this._menuStrategy.renderMenuItems();
+        this._updateMultilineItems();
     },
 
     _initTemplates: function() {
@@ -218,11 +225,54 @@ var Toolbar = ToolbarBase.inherit({
         this._renderMenu();
     },
 
+    _getMatrixToolbarItems: function(containerWidth, $items) {
+        const matrix = [[]];
+        let sum = 0;
+        iteratorUtils.each($items, (index, item) => {
+            const $item = $(item);
+            sum += $item.outerWidth();
+            if(sum > containerWidth) {
+                sum = 0;
+                matrix.push([]);
+            }
+            const row = matrix[matrix.length - 1];
+            row.push($item);
+        });
+
+        return matrix;
+    },
+
+    _clearStylesForMultilineItems: function($items) {
+        $items
+            .removeClass(TOOLBAR_ROWS_SPACE_CLASS)
+            .removeClass(TOOLBAR_LAST_ITEM_CLASS);
+
+        this._$toolbarItemsContainer.removeClass(TOOLBAR_ITEMS_WRAP_CLASS);
+    },
+
+    _appendStylesForMultilineItems: function($items) {
+        const matrix = this._getMatrixToolbarItems(this._$beforeSection.outerWidth(), $items.toArray());
+        matrix.length > 1 && this._$toolbarItemsContainer.addClass(TOOLBAR_ITEMS_WRAP_CLASS);
+
+        for(let i = 0; i < matrix.length; i++) {
+            const row = matrix[i];
+            $(row[row.length - 1]).addClass(TOOLBAR_LAST_ITEM_CLASS);
+            i === 1 && iteratorUtils.each(row, (index, $item) => $item.addClass(TOOLBAR_ROWS_SPACE_CLASS));
+        }
+    },
+
+    _updateMultilineItems: function() {
+        const $items = this._$beforeSection.find("." + TOOLBAR_ITEM_CLASS);
+        this._clearStylesForMultilineItems($items);
+        this._appendStylesForMultilineItems($items);
+    },
+
     _postProcessRenderItems: function() {
         this._hideOverflowItems();
         this._menuStrategy._updateMenuVisibility();
         this.callBase();
         this._menuStrategy.renderMenuItems();
+        this._updateMultilineItems();
     },
 
     _renderItem: function(index, item, itemContainer, $after) {
@@ -314,6 +364,10 @@ var Toolbar = ToolbarBase.inherit({
             strategyName = "dropDownMenu";
         }
 
+        if(this.option("multiline")) {
+            strategyName = "multiline";
+        }
+
         var strategy = STRATEGIES[strategyName];
 
         if(!(this._menuStrategy && this._menuStrategy.NAME === strategyName)) {
@@ -347,7 +401,7 @@ var Toolbar = ToolbarBase.inherit({
             return;
         }
 
-        this._$centerSection.css({
+        this._$centerSection && this._$centerSection.css({
             margin: "0 auto",
             float: "none"
         });
