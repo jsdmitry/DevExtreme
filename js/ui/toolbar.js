@@ -9,15 +9,21 @@ const ActionSheetStrategy = require('./toolbar/ui.toolbar.strategy.action_sheet'
 const DropDownMenuStrategy = require('./toolbar/ui.toolbar.strategy.drop_down_menu');
 const ToolbarBase = require('./toolbar/ui.toolbar.base');
 const ChildDefaultTemplate = require('../core/templates/child_default_template').ChildDefaultTemplate;
+const MultilineStrategy = require('./toolbar/ui.toolbar.strategy.multiline').default;
 
 const STRATEGIES = {
     actionSheet: ActionSheetStrategy,
-    dropDownMenu: DropDownMenuStrategy
+    dropDownMenu: DropDownMenuStrategy,
+    multiline: MultilineStrategy
 };
 
 const TOOLBAR_AUTO_HIDE_ITEM_CLASS = 'dx-toolbar-item-auto-hide';
 const TOOLBAR_AUTO_HIDE_TEXT_CLASS = 'dx-toolbar-text-auto-hide';
 const TOOLBAR_HIDDEN_ITEM = 'dx-toolbar-item-invisible';
+const TOOLBAR_ROWS_SPACE_CLASS = 'dx-toolbar-rows-space';
+const TOOLBAR_ITEMS_WRAP_CLASS = 'dx-toolbar-items-wrap';
+const TOOLBAR_LAST_ITEM_CLASS = 'dx-toolbar-last-item';
+const TOOLBAR_ITEM_CLASS = 'dx-toolbar-item';
 
 
 const Toolbar = ToolbarBase.inherit({
@@ -118,6 +124,7 @@ const Toolbar = ToolbarBase.inherit({
         this._menuStrategy.toggleMenuVisibility(false, true);
         this.callBase();
         this._menuStrategy.renderMenuItems();
+        this._updateMultilineItems();
     },
 
     _initTemplates: function() {
@@ -132,11 +139,54 @@ const Toolbar = ToolbarBase.inherit({
         this._renderMenu();
     },
 
+    _getMatrixToolbarItems: function(containerWidth, $items) {
+        const matrix = [[]];
+        let sum = 0;
+        iteratorUtils.each($items, (index, item) => {
+            const $item = $(item);
+            sum += $item.outerWidth();
+            if(sum > containerWidth) {
+                sum = 0;
+                matrix.push([]);
+            }
+            const row = matrix[matrix.length - 1];
+            row.push($item);
+        });
+
+        return matrix;
+    },
+
+    _clearStylesForMultilineItems: function($items) {
+        $items
+            .removeClass(TOOLBAR_ROWS_SPACE_CLASS)
+            .removeClass(TOOLBAR_LAST_ITEM_CLASS);
+
+        this._$toolbarItemsContainer.removeClass(TOOLBAR_ITEMS_WRAP_CLASS);
+    },
+
+    _appendStylesForMultilineItems: function($items) {
+        const matrix = this._getMatrixToolbarItems(this._$beforeSection.outerWidth(), $items.toArray());
+        matrix.length > 1 && this._$toolbarItemsContainer.addClass(TOOLBAR_ITEMS_WRAP_CLASS);
+
+        for(let i = 0; i < matrix.length; i++) {
+            const row = matrix[i];
+            $(row[row.length - 1]).addClass(TOOLBAR_LAST_ITEM_CLASS);
+            i === 1 && iteratorUtils.each(row, (index, $item) => $item.addClass(TOOLBAR_ROWS_SPACE_CLASS));
+        }
+    },
+
+    _updateMultilineItems: function() {
+        const $items = this._$beforeSection.find('.' + TOOLBAR_ITEM_CLASS);
+        this._clearStylesForMultilineItems($items);
+        this._appendStylesForMultilineItems($items);
+    },
+
     _postProcessRenderItems: function() {
         this._hideOverflowItems();
         this._menuStrategy._updateMenuVisibility();
         this.callBase();
         this._menuStrategy.renderMenuItems();
+        this._updateMultilineItems();
     },
 
     _renderItem: function(index, item, itemContainer, $after) {
@@ -255,7 +305,7 @@ const Toolbar = ToolbarBase.inherit({
             return;
         }
 
-        this._$centerSection.css({
+        this._$centerSection && this._$centerSection.css({
             margin: '0 auto',
             float: 'none'
         });

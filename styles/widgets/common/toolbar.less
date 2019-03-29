@@ -17,6 +17,26 @@
     .dx-button-content:after {
         display: none;
     }
+
+    .dx-toolbar-multiline {
+        &.dx-toolbar-items-wrap {
+            height: 100%;
+        }
+
+        .dx-toolbar-before {
+            display: block;
+            position: inherit;
+            padding-right: 0;
+        }
+
+        .dx-toolbar-item {
+            display: inline-block;
+        }
+
+        .dx-toolbar-last-item {
+            padding-right: 0;
+        }
+    }
 }
 
 .dx-toolbar .dx-button .dx-icon {
