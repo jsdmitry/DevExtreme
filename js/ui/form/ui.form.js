@@ -44,27 +44,27 @@ const FORM_VALIDATION_SUMMARY = "dx-form-validation-summary";
 const WIDGET_CLASS = "dx-widget";
 const FOCUSED_STATE_CLASS = "dx-state-focused";
 
-const Form = Widget.inherit({
-    _init: function() {
-        this.callBase();
+class Form extends Widget {
+    _init() {
+        super._init();
 
         this._cachedColCountOptions = [];
         this._itemsRunTimeInfo = new FormItemsRunTimeInfo();
         this._groupsColCount = [];
 
         this._attachSyncSubscriptions();
-    },
+    }
 
-    _initOptions: function(options) {
+    _initOptions(options) {
         if(!("screenByWidth" in options)) {
             options.screenByWidth = defaultScreenFactorFunc;
         }
 
-        this.callBase(options);
-    },
+        super._initOptions(options);
+    }
 
-    _getDefaultOptions: function() {
-        return extend(this.callBase(), {
+    _getDefaultOptions() {
+        return extend(super._getDefaultOptions(), {
             formID: "dx-" + new Guid(),
             /**
              * @name dxFormOptions.formData
@@ -615,12 +615,12 @@ const Form = Widget.inherit({
              * @default "top"
              */
         });
-    },
+    }
 
-    _defaultOptionsRules: function() {
-        return this.callBase().concat([
+    _defaultOptionsRules() {
+        return super._defaultOptionsRules().concat([
             {
-                device: function() {
+                device() {
                     return themes.isMaterial();
                 },
                 options: {
@@ -639,18 +639,18 @@ const Form = Widget.inherit({
                 }
             }
         ]);
-    },
+    }
 
-    _setOptionsByReference: function() {
-        this.callBase();
+    _setOptionsByReference() {
+        super._setOptionsByReference();
 
         extend(this._optionsByReference, {
             formData: true,
             validationGroup: true
         });
-    },
+    }
 
-    _getColCount: function($element) {
+    _getColCount($element) {
         var index = 0,
             isColsExist = true,
             $cols;
@@ -664,9 +664,9 @@ const Form = Widget.inherit({
             }
         }
         return index;
-    },
+    }
 
-    _createHiddenElement: function(rootLayoutManager) {
+    _createHiddenElement(rootLayoutManager) {
         this._$hiddenElement = $("<div>")
             .addClass(WIDGET_CLASS)
             .addClass(HIDDEN_LABEL_CLASS)
@@ -678,20 +678,20 @@ const Form = Widget.inherit({
         }).appendTo(this._$hiddenElement);
 
         this._hiddenLabelText = $hiddenLabel.find("." + FIELD_ITEM_LABEL_TEXT_CLASS)[0];
-    },
+    }
 
-    _removeHiddenElement: function() {
+    _removeHiddenElement() {
         this._$hiddenElement.remove();
         this._hiddenLabelText = null;
-    },
+    }
 
-    _getLabelWidthByText: function(text) {
+    _getLabelWidthByText(text) {
         // this code has slow performance
         this._hiddenLabelText.innerHTML = text;
         return this._hiddenLabelText.offsetWidth;
-    },
+    }
 
-    _getLabelsSelectorByCol: function(index, options) {
+    _getLabelsSelectorByCol(index, options) {
         options = options || {};
 
         var fieldItemClass = options.inOneColumn ? FIELD_ITEM_CLASS : FORM_FIELD_ITEM_COL_CLASS + index,
@@ -699,9 +699,9 @@ const Form = Widget.inherit({
             childLabelContentSelector = "> ." + FIELD_ITEM_LABEL_CLASS + " > ." + FIELD_ITEM_LABEL_CONTENT_CLASS;
 
         return "." + fieldItemClass + cssExcludeTabbedSelector + childLabelContentSelector;
-    },
+    }
 
-    _getLabelText: function(labelText) {
+    _getLabelText(labelText) {
         var length = labelText.children.length,
             child,
             result = "",
@@ -713,9 +713,9 @@ const Form = Widget.inherit({
         }
 
         return result;
-    },
+    }
 
-    _applyLabelsWidthByCol: function($container, index, options) {
+    _applyLabelsWidthByCol($container, index, options) {
         var $labelTexts = $container.find(this._getLabelsSelectorByCol(index, options)),
             $labelTextsLength = $labelTexts.length,
             labelWidth,
@@ -731,9 +731,9 @@ const Form = Widget.inherit({
         for(i = 0; i < $labelTextsLength; i++) {
             $labelTexts[i].style.width = maxWidth + "px";
         }
-    },
+    }
 
-    _applyLabelsWidth: function($container, excludeTabbed, inOneColumn, colCount) {
+    _applyLabelsWidth($container, excludeTabbed, inOneColumn, colCount) {
         colCount = inOneColumn ? 1 : colCount || this._getColCount($container);
         var applyLabelsOptions = {
                 excludeTabbed: excludeTabbed,
@@ -744,16 +744,16 @@ const Form = Widget.inherit({
         for(i = 0; i < colCount; i++) {
             this._applyLabelsWidthByCol($container, i, applyLabelsOptions);
         }
-    },
+    }
 
-    _getGroupElementsInColumn: function($container, columnIndex, colCount) {
+    _getGroupElementsInColumn($container, columnIndex, colCount) {
         var cssColCountSelector = isDefined(colCount) ? "." + GROUP_COL_COUNT_CLASS + colCount : "",
             groupSelector = "." + FORM_FIELD_ITEM_COL_CLASS + columnIndex + " > ." + FIELD_ITEM_CONTENT_CLASS + " > ." + FORM_GROUP_CLASS + cssColCountSelector;
 
         return $container.find(groupSelector);
-    },
+    }
 
-    _applyLabelsWidthWithGroups: function($container, colCount, excludeTabbed) {
+    _applyLabelsWidthWithGroups($container, colCount, excludeTabbed) {
         var alignItemLabelsInAllGroups = this.option("alignItemLabelsInAllGroups");
 
         if(alignItemLabelsInAllGroups) {
@@ -765,9 +765,9 @@ const Form = Widget.inherit({
                 this._applyLabelsWidth($groups.eq(i), excludeTabbed);
             }
         }
-    },
+    }
 
-    _applyLabelsWidthWithNestedGroups: function($container, colCount, excludeTabbed) {
+    _applyLabelsWidthWithNestedGroups($container, colCount, excludeTabbed) {
         var applyLabelsOptions = { excludeTabbed: excludeTabbed },
             colIndex,
             groupsColIndex,
@@ -787,9 +787,9 @@ const Form = Widget.inherit({
                 }
             }
         }
-    },
+    }
 
-    _alignLabelsInColumn: function(options) {
+    _alignLabelsInColumn(options) {
         if(!hasWindow()) {
             return;
         }
@@ -805,21 +805,21 @@ const Form = Widget.inherit({
             }
         }
         this._removeHiddenElement();
-    },
+    }
 
-    _prepareFormData: function() {
+    _prepareFormData() {
         if(!isDefined(this.option("formData"))) {
             this.option("formData", {});
         }
-    },
+    }
 
-    _initMarkup: function() {
+    _initMarkup() {
         ValidationEngine.addGroup(this._getValidationGroup());
         this._clearCachedInstances();
         this._prepareFormData();
         this.$element().addClass(FORM_CLASS);
 
-        this.callBase();
+        super._initMarkup();
 
         this.setAria("role", "form", this.$element());
 
@@ -831,18 +831,18 @@ const Form = Widget.inherit({
         this._renderValidationSummary();
 
         this._lastMarkupScreenFactor = this._targetScreenFactor || this._getCurrentScreenFactor();
-    },
+    }
 
-    _getCurrentScreenFactor: function() {
+    _getCurrentScreenFactor() {
         return hasWindow() ? getCurrentScreenFactor(this.option("screenByWidth")) : "lg";
-    },
+    }
 
-    _clearCachedInstances: function() {
+    _clearCachedInstances() {
         this._itemsRunTimeInfo.clear();
         this._cachedLayoutManagers = [];
-    },
+    }
 
-    _alignLabels: function(layoutManager, inOneColumn) {
+    _alignLabels(layoutManager, inOneColumn) {
         this._alignLabelsInColumn({
             $container: this.$element(),
             layoutManager: layoutManager,
@@ -850,16 +850,16 @@ const Form = Widget.inherit({
             items: this.option("items"),
             inOneColumn: inOneColumn
         });
-    },
+    }
 
-    _clean: function() {
-        this.callBase();
+    _clean() {
+        super._clean();
         this._groupsColCount = [];
         this._cachedColCountOptions = [];
         this._lastMarkupScreenFactor = undefined;
-    },
+    }
 
-    _renderScrollable: function() {
+    _renderScrollable() {
         var useNativeScrolling = this.option("useNativeScrolling");
         this._scrollable = new Scrollable(this.$element(), {
             useNative: !!useNativeScrolling,
@@ -868,13 +868,13 @@ const Form = Widget.inherit({
             direction: "both",
             bounceEnabled: false
         });
-    },
+    }
 
-    _getContent: function() {
+    _getContent() {
         return this.option("scrollingEnabled") ? this._scrollable.$content() : this.$element();
-    },
+    }
 
-    _renderValidationSummary: function() {
+    _renderValidationSummary() {
         var $validationSummary = this.$element().find("." + FORM_VALIDATION_SUMMARY);
 
         if($validationSummary.length > 0) {
@@ -886,9 +886,9 @@ const Form = Widget.inherit({
                 validationGroup: this._getValidationGroup()
             }).appendTo(this._getContent());
         }
-    },
+    }
 
-    _prepareItems: function(items, parentIsTabbedItem) {
+    _prepareItems(items, parentIsTabbedItem) {
         if(items) {
             var result = [];
 
@@ -918,9 +918,9 @@ const Form = Widget.inherit({
 
             return result;
         }
-    },
+    }
 
-    _tryPrepareGroupItem: function(item) {
+    _tryPrepareGroupItem(item) {
         if(item.itemType === "group") {
             item.alignItemLabels = ensureDefined(item.alignItemLabels, true);
 
@@ -930,22 +930,22 @@ const Form = Widget.inherit({
 
             item.template = this._itemGroupTemplate.bind(this, item);
         }
-    },
+    }
 
-    _tryPrepareTabbedItem: function(item) {
+    _tryPrepareTabbedItem(item) {
         if(item.itemType === "tabbed") {
             item.template = this._itemTabbedTemplate.bind(this, item);
             item.tabs = this._prepareItems(item.tabs, true);
         }
-    },
+    }
 
-    _tryPrepareItemTemplate: function(item) {
+    _tryPrepareItemTemplate(item) {
         if(item.template) {
             item.template = this._getTemplate(item.template);
         }
-    },
+    }
 
-    _checkGrouping: function(items) {
+    _checkGrouping(items) {
         if(items) {
             for(var i = 0; i < items.length; i++) {
                 var item = items[i];
@@ -954,9 +954,9 @@ const Form = Widget.inherit({
                 }
             }
         }
-    },
+    }
 
-    _renderLayout: function() {
+    _renderLayout() {
         var that = this,
             items = that.option("items"),
             $content = that._getContent();
@@ -972,28 +972,28 @@ const Form = Widget.inherit({
             alignItemLabels: that.option("alignItemLabels"),
             screenByWidth: this.option("screenByWidth"),
             colCountByScreen: this.option("colCountByScreen"),
-            onLayoutChanged: function(inOneColumn) {
+            onLayoutChanged(inOneColumn) {
                 that._alignLabels.bind(that)(that._rootLayoutManager, inOneColumn);
             },
-            onContentReady: function(e) {
+            onContentReady(e) {
                 that._alignLabels(e.component, e.component.isSingleColumnMode());
             }
         });
-    },
+    }
 
-    _tryGetItemsForTemplate: function(item) {
+    _tryGetItemsForTemplate(item) {
         return item.items || [];
-    },
+    }
 
-    _itemTabbedTemplate: function(item, e, $container) {
+    _itemTabbedTemplate(item, e, $container) {
         var that = this,
             $tabPanel = $("<div>").appendTo($container),
             tabPanelOptions = extend({}, item.tabPanelOptions, {
                 dataSource: item.tabs,
-                onItemRendered: function(args) {
+                onItemRendered(args) {
                     triggerShownEvent(args.itemElement);
                 },
-                itemTemplate: function(itemData, e, container) {
+                itemTemplate(itemData, e, container) {
                     var layoutManager,
                         $container = $(container),
                         alignItemLabels = ensureDefined(itemData.alignItemLabels, true);
@@ -1004,7 +1004,7 @@ const Form = Widget.inherit({
                         screenByWidth: this.option("screenByWidth"),
                         colCountByScreen: itemData.colCountByScreen,
                         cssItemClass: itemData.cssItemClass,
-                        onLayoutChanged: function(inOneColumn) {
+                        onLayoutChanged(inOneColumn) {
                             that._alignLabelsInColumn.bind(that)({
                                 $container: $container,
                                 layoutManager: layoutManager,
@@ -1026,9 +1026,9 @@ const Form = Widget.inherit({
             });
 
         that._createComponent($tabPanel, TabPanel, tabPanelOptions);
-    },
+    }
 
-    _itemGroupTemplate: function(item, e, $container) {
+    _itemGroupTemplate(item, e, $container) {
         var $group = $("<div>")
                 .toggleClass(FORM_GROUP_WITH_CAPTION_CLASS, isDefined(item.caption) && item.caption.length)
                 .addClass(FORM_GROUP_CLASS)
@@ -1071,9 +1071,9 @@ const Form = Widget.inherit({
             }
             $group.addClass(GROUP_COL_COUNT_CLASS + colCount);
         }
-    },
+    }
 
-    _renderLayoutManager: function(items, $rootElement, options) {
+    _renderLayoutManager(items, $rootElement, options) {
         var $element = $("<div>"),
             that = this,
             instance,
@@ -1091,13 +1091,13 @@ const Form = Widget.inherit({
         instance.on("autoColCountChanged", function() { that._refresh(); });
         that._cachedLayoutManagers.push(instance);
         return instance;
-    },
+    }
 
-    _getValidationGroup: function() {
+    _getValidationGroup() {
         return this.option("validationGroup") || this;
-    },
+    }
 
-    _getLayoutManagerConfig: function(items, options) {
+    _getLayoutManagerConfig(items, options) {
         var that = this,
             baseConfig = {
                 form: that,
@@ -1114,7 +1114,7 @@ const Form = Widget.inherit({
                 minColWidth: that.option("minColWidth"),
                 showColonAfterLabel: that.option("showColonAfterLabel"),
                 onEditorEnterKey: that.option("onEditorEnterKey"),
-                onFieldDataChanged: function(args) {
+                onFieldDataChanged(args) {
                     if(!that._isDataUpdating) {
                         that._triggerOnFieldDataChanged(args);
                     }
@@ -1124,7 +1124,7 @@ const Form = Widget.inherit({
 
         return extend(baseConfig, {
             items: items,
-            onContentReady: function(args) {
+            onContentReady(args) {
                 that._itemsRunTimeInfo.addItemsOrExtendFrom(args.component._itemsRunTimeInfo);
                 options.onContentReady && options.onContentReady(args);
             },
@@ -1135,9 +1135,9 @@ const Form = Widget.inherit({
             onLayoutChanged: options.onLayoutChanged,
             width: options.width
         });
-    },
+    }
 
-    _createComponent: function($element, type, config) {
+    _createComponent($element, type, config) {
         var that = this;
         config = config || {};
 
@@ -1145,10 +1145,10 @@ const Form = Widget.inherit({
             readOnly: that.option("readOnly")
         });
 
-        return that.callBase($element, type, config);
-    },
+        return super._createComponent($element, type, config);
+    }
 
-    _attachSyncSubscriptions: function() {
+    _attachSyncSubscriptions() {
         var that = this;
 
         that.on("optionChanged", function(args) {
@@ -1176,9 +1176,9 @@ const Form = Widget.inherit({
                 });
             }
         });
-    },
+    }
 
-    _optionChanged: function(args) {
+    _optionChanged(args) {
         var rootNameOfComplexOption = this._getRootLevelOfExpectedComplexOption(args.fullName, ["formData", "items"]);
 
         if(rootNameOfComplexOption) {
@@ -1226,12 +1226,12 @@ const Form = Widget.inherit({
             case "readOnly":
                 break;
             case "width":
-                this.callBase(args);
+                super._optionChanged(args);
                 this._rootLayoutManager.option(args.name, args.value);
                 this._alignLabels(this._rootLayoutManager, this._rootLayoutManager.isSingleColumnMode());
                 break;
             case "visible":
-                this.callBase(args);
+                super._optionChanged(args);
 
                 if(args.value) {
                     triggerShownEvent(this.$element());
@@ -1242,11 +1242,11 @@ const Form = Widget.inherit({
                 this._invalidate();
                 break;
             default:
-                this.callBase(args);
+                super._optionChanged(args);
         }
-    },
+    }
 
-    _getRootLevelOfExpectedComplexOption: function(fullOptionName, expectedRootNames) {
+    _getRootLevelOfExpectedComplexOption(fullOptionName, expectedRootNames) {
         var splitFullName = fullOptionName.split("."),
             result;
 
@@ -1262,9 +1262,9 @@ const Form = Widget.inherit({
         }
 
         return result;
-    },
+    }
 
-    _customHandlerOfComplexOption: function(args, rootOptionName) {
+    _customHandlerOfComplexOption(args, rootOptionName) {
         var nameParts = args.fullName.split(".");
 
         switch(rootOptionName) {
@@ -1322,9 +1322,9 @@ const Form = Widget.inherit({
                 }
                 break;
         }
-    },
+    }
 
-    _getItemPath: function(nameParts) {
+    _getItemPath(nameParts) {
         var itemPath = nameParts[0],
             i;
 
@@ -1337,22 +1337,22 @@ const Form = Widget.inherit({
         }
 
         return itemPath;
-    },
+    }
 
-    _triggerOnFieldDataChanged: function(args) {
+    _triggerOnFieldDataChanged(args) {
         this._createActionByOption("onFieldDataChanged")(args);
-    },
+    }
 
-    _triggerOnFieldDataChangedByDataSet: function(data) {
+    _triggerOnFieldDataChangedByDataSet(data) {
         var that = this;
         if(data && isObject(data)) {
             each(data, function(dataField, value) {
                 that._triggerOnFieldDataChanged({ dataField: dataField, value: value });
             });
         }
-    },
+    }
 
-    _updateFieldValue: function(dataField, value) {
+    _updateFieldValue(dataField, value) {
         if(isDefined(this.option("formData"))) {
             var editor = this.getEditor(dataField);
 
@@ -1366,9 +1366,9 @@ const Form = Widget.inherit({
                 }
             }
         }
-    },
+    }
 
-    _generateItemsFromData: function(items) {
+    _generateItemsFromData(items) {
         var formData = this.option("formData"),
             result = [];
 
@@ -1393,9 +1393,9 @@ const Form = Widget.inherit({
         }
 
         return result;
-    },
+    }
 
-    _getItemByField: function(field, items) {
+    _getItemByField(field, items) {
         var that = this,
             fieldParts = isObject(field) ? field : that._getFieldParts(field),
             fieldName = fieldParts.fieldName,
@@ -1426,9 +1426,9 @@ const Form = Widget.inherit({
         }
 
         return resultItem;
-    },
+    }
 
-    _getFieldParts: function(field) {
+    _getFieldParts(field) {
         var fieldSeparator = ".",
             fieldName = field,
             separatorIndex = fieldName.indexOf(fieldSeparator),
@@ -1445,9 +1445,9 @@ const Form = Widget.inherit({
             fieldName: fieldName,
             fieldPath: resultPath.reverse()
         };
-    },
+    }
 
-    _getItemByFieldPath: function(path, fieldName, item) {
+    _getItemByFieldPath(path, fieldName, item) {
         var that = this,
             itemType = item.itemType,
             subItemsField = that._getSubItemField(itemType),
@@ -1486,13 +1486,13 @@ const Form = Widget.inherit({
         } while(path.length && !isDefined(result));
 
         return result;
-    },
+    }
 
-    _getSubItemField: function(itemType) {
+    _getSubItemField(itemType) {
         return itemType === "tabbed" ? "tabs" : "items";
-    },
+    }
 
-    _searchItemInEverySubItem: function(path, fieldName, items) {
+    _searchItemInEverySubItem(path, fieldName, items) {
         var that = this,
             result;
 
@@ -1508,24 +1508,24 @@ const Form = Widget.inherit({
         }
 
         return result;
-    },
+    }
 
-    _getTextWithoutSpaces: function(text) {
+    _getTextWithoutSpaces(text) {
         return text ? text.replace(/\s/g, '') : undefined;
-    },
+    }
 
-    _isExpectedItem: function(item, fieldName) {
+    _isExpectedItem(item, fieldName) {
         return item && (item.dataField === fieldName || item.name === fieldName || this._getTextWithoutSpaces(item.title) === fieldName ||
             (item.itemType === "group" && this._getTextWithoutSpaces(item.caption) === fieldName));
-    },
+    }
 
-    _changeItemOption: function(item, option, value) {
+    _changeItemOption(item, option, value) {
         if(isObject(item)) {
             item[option] = value;
         }
-    },
+    }
 
-    _dimensionChanged: function() {
+    _dimensionChanged() {
         var currentScreenFactor = this._getCurrentScreenFactor();
 
         if(this._lastMarkupScreenFactor !== currentScreenFactor) {
@@ -1537,9 +1537,9 @@ const Form = Widget.inherit({
 
             this._lastMarkupScreenFactor = currentScreenFactor;
         }
-    },
+    }
 
-    _isColCountChanged: function(oldScreenSize, newScreenSize) {
+    _isColCountChanged(oldScreenSize, newScreenSize) {
         var isChanged = false;
 
         each(this._cachedColCountOptions, function(index, item) {
@@ -1550,17 +1550,17 @@ const Form = Widget.inherit({
         });
 
         return isChanged;
-    },
+    }
 
-    _refresh: function() {
+    _refresh() {
         var editorSelector = "." + FOCUSED_STATE_CLASS + " input, ." + FOCUSED_STATE_CLASS + " textarea";
 
         eventsEngine.trigger(this.$element().find(editorSelector), "change");
 
-        this.callBase();
-    },
+        super._refresh();
+    }
 
-    _resetValues: function() {
+    _resetValues() {
         var validationGroup = this._getValidationGroup(),
             validationGroupConfig = ValidationEngine.getGroupConfig(validationGroup);
 
@@ -1571,9 +1571,9 @@ const Form = Widget.inherit({
                 itemRunTimeInfo.widgetInstance.option("isValid", true);
             }
         });
-    },
+    }
 
-    _updateData: function(data, value, isComplexData) {
+    _updateData(data, value, isComplexData) {
         var that = this,
             _data = isComplexData ? value : data;
 
@@ -1584,39 +1584,39 @@ const Form = Widget.inherit({
         } else if(isString(data)) {
             that._updateFieldValue(data, value);
         }
-    },
+    }
 
-    registerKeyHandler: function(key, handler) {
-        this.callBase(key, handler);
+    registerKeyHandler(key, handler) {
+        super.registerKeyHandler(key, handler);
         this._itemsRunTimeInfo.each(function(_, itemRunTimeInfo) {
             if(isDefined(itemRunTimeInfo.widgetInstance)) {
                 itemRunTimeInfo.widgetInstance.registerKeyHandler(key, handler);
             }
         });
-    },
+    }
 
-    _focusTarget: function() {
+    _focusTarget() {
         return this.$element().find("." + FIELD_ITEM_CONTENT_CLASS + " [tabindex]").first();
-    },
+    }
 
-    _visibilityChanged: function(visible) {
+    _visibilityChanged(visible) {
         if(visible && browser.msie) {
             this._refresh();
         }
-    },
+    }
 
-    _dispose: function() {
+    _dispose() {
         ValidationEngine.removeGroup(this._getValidationGroup());
-        this.callBase();
-    },
+        super._dispose();
+    }
 
     /**
      * @name dxFormMethods.resetValues
      * @publicName resetValues()
      */
-    resetValues: function() {
+    resetValues() {
         this._resetValues();
-    },
+    }
 
     /**
      * @name dxFormMethods.updateData
@@ -1629,9 +1629,9 @@ const Form = Widget.inherit({
      * @publicName updateData(data)
      * @param1 data:object
      */
-    updateData: function(data, value) {
+    updateData(data, value) {
         this._updateData(data, value);
-    },
+    }
 
     /**
      * @name dxFormMethods.getEditor
@@ -1639,9 +1639,9 @@ const Form = Widget.inherit({
      * @param1 dataField:string
      * @return Editor | undefined
      */
-    getEditor: function(dataField) {
+    getEditor(dataField) {
         return this._itemsRunTimeInfo.findWidgetInstanceByDataField(dataField) || this._itemsRunTimeInfo.findWidgetInstanceByName(dataField);
-    },
+    }
 
     /**
      * @name dxFormMethods.getButton
@@ -1649,16 +1649,16 @@ const Form = Widget.inherit({
      * @param1 name:string
      * @return dxButton | undefined
      */
-    getButton: function(name) {
+    getButton(name) {
         return this._itemsRunTimeInfo.findWidgetInstanceByName(name);
-    },
+    }
 
     /**
      * @name dxFormMethods.updateDimensions
      * @publicName updateDimensions()
      * @return Promise<void>
      */
-    updateDimensions: function() {
+    updateDimensions() {
         var that = this,
             deferred = new Deferred();
 
@@ -1671,7 +1671,7 @@ const Form = Widget.inherit({
         }
 
         return deferred.promise();
-    },
+    }
 
     /**
      * @name dxFormMethods.itemOption
@@ -1692,7 +1692,7 @@ const Form = Widget.inherit({
      * @param1 id:string
      * @return any
      */
-    itemOption: function(id, option, value) {
+    itemOption(id, option, value) {
         var that = this,
             argsCount = arguments.length,
             items = that._generateItemsFromData(that.option("items")),
@@ -1714,24 +1714,24 @@ const Form = Widget.inherit({
         }
 
         this.option("items", items);
-    },
+    }
     /**
      * @name dxFormMethods.validate
      * @publicName validate()
      * @return dxValidationGroupResult
      */
-    validate: function() {
+    validate() {
         return ValidationEngine.validateGroup(this._getValidationGroup());
-    },
+    }
 
-    getItemID: function(name) {
+    getItemID(name) {
         return "dx_" + this.option("formID") + "_" + (name || new Guid());
-    },
+    }
 
-    getTargetScreenFactor: function() {
+    getTargetScreenFactor() {
         return this._targetScreenFactor;
     }
-});
+}
 
 registerComponent("dxForm", Form);
 
