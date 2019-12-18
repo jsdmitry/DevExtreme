@@ -255,7 +255,7 @@ const Form = Widget.inherit({
             stylingMode: undefined
             /**
             * @name dxFormSimpleItem
-			* @publicName SimpleItem
+			* @publicName UiFormSimple_item
             * @section FormItems
             * @type object
             */
