@@ -10,13 +10,13 @@ import { extend } from "../../core/utils/extend";
 import { normalizeIndexes } from "../../core/utils/array";
 import dataUtils from "../../core/utils/data";
 import removeEvent from "../../core/remove_event";
-import errors from "../widget/ui.errors";
 import messageLocalization from "../../localization/message";
 import styleUtils from "../../core/utils/style";
 import Widget from "../widget/ui.widget";
 import ResponsiveBox from "../responsive_box";
 import { default as SimpleItem } from './ui.form.simple_item';
 import { default as EmptyItem } from './ui.form.empty_item';
+import { default as ButtonItem } from './ui.form.button_item';
 
 import "../text_box";
 import "../number_box";
@@ -25,7 +25,6 @@ import "../date_box";
 import "../button";
 
 const FORM_EDITOR_BY_DEFAULT = "dxTextBox";
-const FIELD_BUTTON_ITEM_CLASS = "dx-field-button-item";
 const SINGLE_COLUMN_ITEM_CONTENT = "dx-single-column-item-content";
 
 const LAYOUT_MANAGER_FIRST_ROW_CLASS = "dx-first-row";
@@ -313,7 +312,7 @@ const LayoutManager = Widget.inherit({
         });
     },
 
-    _itemStateChangedHandler: function(e) {
+    _itemStateChangedHandler: function() {
         this._refresh();
     },
 
@@ -324,9 +323,21 @@ const LayoutManager = Widget.inherit({
                 emptyItem.render($container);
                 break;
             }
-            case "button":
-                this._renderButtonItem(item, $container);
+            case "button": {
+                const buttonItem = new ButtonItem({
+                    validationGroup: this.option("validationGroup"),
+                    createComponent: this._createComponent.bind(this),
+                    cssItemClass: this.option("cssItemClass")
+                });
+                buttonItem.render(item, $container);
+                this._itemsRunTimeInfo.add({
+                    item,
+                    widgetInstance: buttonItem.getWidgetInstance(),
+                    guid: item.guid,
+                    $itemContainer: $container
+                });
                 break;
+            }
             default: {
                 const simpleItem = new SimpleItem({
                     showRequiredMark: this.option("showRequiredMark"),
@@ -347,7 +358,7 @@ const LayoutManager = Widget.inherit({
                     formInstance: this._getComponentOwner()
                 });
                 simpleItem.render(item, $container);
-                const instance = simpleItem.getEditorInstance();
+                const instance = simpleItem.getWidgetInstance();
                 this._itemsRunTimeInfo.add({
                     item,
                     widgetInstance: instance,
@@ -529,62 +540,6 @@ const LayoutManager = Widget.inherit({
         }
 
         return result;
-    },
-
-    _getButtonHorizontalAlignment: function(item) {
-        if(isDefined(item.horizontalAlignment)) {
-            return item.horizontalAlignment;
-        }
-
-        if(isDefined(item.alignment)) {
-            errors.log("W0001", "dxForm", "alignment", "18.1", "Use the 'horizontalAlignment' option in button items instead.");
-            return item.alignment;
-        }
-
-        return "right";
-    },
-
-    _getButtonVerticalAlignment: function(item) {
-        switch(item.verticalAlignment) {
-            case "center":
-                return "center";
-            case "bottom":
-                return "flex-end";
-            default:
-                return "flex-start";
-        }
-    },
-
-    _renderButtonItem: function(item, $container) {
-        var $button = $("<div>").appendTo($container),
-            defaultOptions = {
-                validationGroup: this.option("validationGroup")
-            };
-
-        $container
-            .addClass(FIELD_BUTTON_ITEM_CLASS)
-            .css("textAlign", this._getButtonHorizontalAlignment(item));
-
-        $container.parent().css("justifyContent", this._getButtonVerticalAlignment(item));
-
-        var instance = this._createComponent($button, "dxButton", extend(defaultOptions, item.buttonOptions));
-
-        this._itemsRunTimeInfo.add({
-            item,
-            widgetInstance: instance,
-            guid: item.guid,
-            $itemContainer: $container
-        });
-        this._addItemClasses($container, item.col);
-
-        return $button;
-    },
-
-    _addItemClasses: function($item, column) {
-        $item
-            .addClass("dx-field-item")
-            .addClass(this.option("cssItemClass"))
-            .addClass(isDefined(column) ? "dx-col-" + column : "");
     },
 
     _getComponentOwner: function() {
@@ -798,11 +753,6 @@ const LayoutManager = Widget.inherit({
         if(this.option("colCount") === "auto" && this.isCachedColCountObsolete()) {
             this._eventsStrategy.fireEvent("autoColCountChanged");
         }
-    },
-
-    getItemID: function(name) {
-        var formInstance = this.option("form");
-        return formInstance && formInstance.getItemID(name);
     },
 
     updateData: function(data, value) {

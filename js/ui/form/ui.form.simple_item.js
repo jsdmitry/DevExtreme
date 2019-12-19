@@ -13,6 +13,7 @@ import clickEvent from "../../events/click";
 import Validator from "../validator";
 import stringUtils from "../../core/utils/string";
 import { renderLabel } from "./ui.form.utils";
+import { default as ItemBase } from "./ui.form.item.base";
 
 const FIELD_ITEM_CLASS = "dx-field-item";
 const FIELD_ITEM_REQUIRED_CLASS = "dx-field-item-required";
@@ -33,22 +34,7 @@ const SIMPLE_ITEM_TYPE = "simple";
 const DATA_OPTIONS = ["dataSource", "items"];
 const EDITORS_WITH_ARRAY_VALUE = ["dxTagBox", "dxRangeSlider"];
 
-export default class SimpleItem {
-    constructor(options) {
-        // showRequiredMark, showOptionalMark, requiredMark, optionalMark
-        // data
-        // cssItemClass
-        // requiredMessage
-        // showColonAfterLabel
-        // labelLocation
-        // stylingMode
-        // validationBoundary
-        // validationGroup
-        // createComponent
-        // formInstance
-        this._options = options;
-    }
-
+export default class SimpleItem extends ItemBase {
     _replaceDataOptions(originalOptions, resultOptions) {
         if(originalOptions) {
             DATA_OPTIONS.forEach(function(item) {
@@ -375,7 +361,7 @@ export default class SimpleItem {
         this._attachClickHandler($label, $editor, item.editorType);
     }
 
-    getEditorInstance() {
+    getWidgetInstance() {
         return this._instance;
     }
 

@@ -1,11 +1,15 @@
 import $ from "jquery";
 import ko from "knockout";
-import { __internals as internals } from "ui/form/ui.form";
 import fx from "animation/fx";
 
+import "ui/form";
 import "ui/text_area";
 import "ui/select_box";
 import "integration/knockout";
+
+const FIELD_ITEM_CONTENT_CLASS = "dx-field-item-content";
+const FIELD_ITEM_LABEL_LOCATION_CLASS = "dx-field-item-label-location-";
+const FIELD_ITEM_CONTENT_LOCATION_CLASS = "dx-field-item-content-location-";
 
 QUnit.testStart(() => {
     const markup =
@@ -490,7 +494,7 @@ QUnit.test("Render template", function(assert) {
     ko.applyBindings(viewModel, $form.get(0));
 
     // act
-    var $fieldItemWidget = $form.find("." + internals.FIELD_ITEM_CONTENT_CLASS),
+    var $fieldItemWidget = $form.find("." + FIELD_ITEM_CONTENT_CLASS),
         spanText = $fieldItemWidget.find("span").text(),
         textArea = $fieldItemWidget.find(".dx-textarea").dxTextArea("instance"),
         form = $form.dxForm("instance");
@@ -513,7 +517,7 @@ QUnit.test("Check template bound to data", function(assert) {
     ko.applyBindings(viewModel, $form.get(0));
 
     // act
-    var $fieldItemWidget = $form.find("." + internals.FIELD_ITEM_CONTENT_CLASS),
+    var $fieldItemWidget = $form.find("." + FIELD_ITEM_CONTENT_CLASS),
         textArea = $fieldItemWidget.find(".dx-textarea").dxTextArea("instance"),
         form = $form.dxForm("instance");
 
@@ -528,14 +532,14 @@ QUnit.test("Redraw layout manager when labelLocation changes", function(assert) 
     var $form = $("#simpleTemplateForm").dxForm({ formData: { testField: "test" } }),
         form = $form.dxForm("instance");
 
-    assert.equal($form.find("." + internals.FIELD_ITEM_LABEL_LOCATION_CLASS + "left").length, 1, "We have 1 label with location left");
+    assert.equal($form.find("." + FIELD_ITEM_LABEL_LOCATION_CLASS + "left").length, 1, "We have 1 label with location left");
 
     // act
     form.option("labelLocation", "bottom");
 
     // assert
-    assert.equal($form.find("." + internals.FIELD_ITEM_LABEL_LOCATION_CLASS + "bottom").length, 1, "We have 1 label with location bottom");
-    assert.equal($form.find("." + internals.FIELD_ITEM_LABEL_LOCATION_CLASS + "left").length, 0, "We has't labels with location left");
+    assert.equal($form.find("." + FIELD_ITEM_LABEL_LOCATION_CLASS + "bottom").length, 1, "We have 1 label with location bottom");
+    assert.equal($form.find("." + FIELD_ITEM_LABEL_LOCATION_CLASS + "left").length, 0, "We has't labels with location left");
 });
 
 QUnit.test("Item content class should depend on the 'labelLocation' option", function(assert) {
@@ -543,13 +547,13 @@ QUnit.test("Item content class should depend on the 'labelLocation' option", fun
     var $form = $("#simpleTemplateForm").dxForm({ formData: { testField: "test" } }),
         form = $form.dxForm("instance");
 
-    assert.equal($form.find("." + internals.FIELD_ITEM_CONTENT_LOCATION_CLASS + "right").length, 1, "Item content has the 'right' location");
+    assert.equal($form.find("." + FIELD_ITEM_CONTENT_LOCATION_CLASS + "right").length, 1, "Item content has the 'right' location");
 
     form.option("labelLocation", "right");
-    assert.equal($form.find("." + internals.FIELD_ITEM_CONTENT_LOCATION_CLASS + "left").length, 1, "Item content has the 'left' location");
+    assert.equal($form.find("." + FIELD_ITEM_CONTENT_LOCATION_CLASS + "left").length, 1, "Item content has the 'left' location");
 
     form.option("labelLocation", "top");
-    assert.equal($form.find("." + internals.FIELD_ITEM_CONTENT_LOCATION_CLASS + "bottom").length, 1, "Item content has the 'bottom' location");
+    assert.equal($form.find("." + FIELD_ITEM_CONTENT_LOCATION_CLASS + "bottom").length, 1, "Item content has the 'bottom' location");
 });
 
 QUnit.test("Tab template", function(assert) {
