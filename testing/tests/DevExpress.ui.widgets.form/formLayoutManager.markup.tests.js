@@ -1,7 +1,6 @@
 import $ from "jquery";
 import consoleUtils from "core/utils/console";
 import responsiveBoxScreenMock from "../../helpers/responsiveBoxScreenMock.js";
-import { __internals as internals } from "ui/form/ui.form.layout_manager";
 import config from "core/config";
 import typeUtils from "core/utils/type";
 import { inArray } from "core/utils/array";
@@ -24,6 +23,24 @@ import "ui/html_editor";
 import "common.css!";
 
 const READONLY_STATE_CLASS = "dx-state-readonly";
+const FIELD_EMPTY_ITEM_CLASS = "dx-field-empty-item";
+
+const FIELD_ITEM_CLASS = "dx-field-item";
+const FIELD_ITEM_CONTENT_CLASS = "dx-field-item-content";
+const FIELD_ITEM_CONTENT_LOCATION_CLASS = "dx-field-item-content-location-";
+const FIELD_ITEM_LABEL_CLASS = "dx-field-item-label";
+const FIELD_ITEM_LABEL_ALIGN_CLASS = "dx-field-item-label-align";
+const FIELD_ITEM_LABEL_LOCATION_CLASS = "dx-field-item-label-location-";
+const LABEL_HORIZONTAL_ALIGNMENT_CLASS = "dx-label-h-align";
+const LABEL_VERTICAL_ALIGNMENT_CLASS = "dx-label-v-align";
+const FORM_LAYOUT_MANAGER_CLASS = "dx-layout-manager";
+const FIELD_ITEM_CONTENT_WRAPPER_CLASS = "dx-field-item-content-wrapper";
+const FIELD_ITEM_HELP_TEXT_CLASS = "dx-field-item-help-text";
+const FIELD_ITEM_REQUIRED_CLASS = "dx-field-item-required";
+const FIELD_ITEM_OPTIONAL_CLASS = "dx-field-item-optional";
+const FIELD_ITEM_REQUIRED_MARK_CLASS = "dx-field-item-required-mark";
+const FIELD_ITEM_OPTIONAL_MARK_CLASS = "dx-field-item-optional-mark";
+const LAYOUT_MANAGER_ONE_COLUMN = "dx-layout-manager-one-col";
 
 const { test } = QUnit;
 
@@ -80,16 +97,16 @@ QUnit.module("Layout manager", () => {
         });
 
         // assert
-        assert.ok($testContainer.hasClass(internals.FORM_LAYOUT_MANAGER_CLASS), "layout manager is rendered");
+        assert.ok($testContainer.hasClass(FORM_LAYOUT_MANAGER_CLASS), "layout manager is rendered");
         assert.equal($testContainer.find(".dx-responsivebox").length, 1, "responsive box is rendered");
-        assert.equal($testContainer.find("." + internals.FIELD_ITEM_CLASS).length, 1, "field items is rendered");
-        assert.ok($testContainer.find("." + internals.FIELD_ITEM_CLASS).hasClass(internals.LABEL_HORIZONTAL_ALIGNMENT_CLASS), "field item has default label-align class");
-        assert.equal($testContainer.find("." + internals.FIELD_ITEM_LABEL_CLASS).length, 1, "label is rendered");
-        assert.ok($testContainer.find("." + internals.FIELD_ITEM_LABEL_CLASS).hasClass(internals.FIELD_ITEM_LABEL_LOCATION_CLASS + "left"), "label's location is left by default");
-        assert.equal($testContainer.find("." + internals.FIELD_ITEM_CLASS + " .dx-texteditor").length, 1, "editor is rendered");
-        assert.ok(!$testContainer.find("." + internals.FIELD_ITEM_CLASS + " .dx-texteditor").hasClass(READONLY_STATE_CLASS), "editor is not read only");
-        assert.ok($testContainer.find("." + internals.FIELD_ITEM_CLASS + "> ." + internals.FIELD_ITEM_CONTENT_CLASS).hasClass(internals.FIELD_ITEM_CONTENT_LOCATION_CLASS + "right"), "Field item content has a right css class");
-        assert.equal($testContainer.find("." + internals.FIELD_ITEM_CLASS + "> ." + internals.FIELD_ITEM_CONTENT_CLASS + "> .dx-texteditor").length, 1, "editor has field-item-content class");
+        assert.equal($testContainer.find("." + FIELD_ITEM_CLASS).length, 1, "field items is rendered");
+        assert.ok($testContainer.find("." + FIELD_ITEM_CLASS).hasClass(LABEL_HORIZONTAL_ALIGNMENT_CLASS), "field item has default label-align class");
+        assert.equal($testContainer.find("." + FIELD_ITEM_LABEL_CLASS).length, 1, "label is rendered");
+        assert.ok($testContainer.find("." + FIELD_ITEM_LABEL_CLASS).hasClass(FIELD_ITEM_LABEL_LOCATION_CLASS + "left"), "label's location is left by default");
+        assert.equal($testContainer.find("." + FIELD_ITEM_CLASS + " .dx-texteditor").length, 1, "editor is rendered");
+        assert.ok(!$testContainer.find("." + FIELD_ITEM_CLASS + " .dx-texteditor").hasClass(READONLY_STATE_CLASS), "editor is not read only");
+        assert.ok($testContainer.find("." + FIELD_ITEM_CLASS + "> ." + FIELD_ITEM_CONTENT_CLASS).hasClass(FIELD_ITEM_CONTENT_LOCATION_CLASS + "right"), "Field item content has a right css class");
+        assert.equal($testContainer.find("." + FIELD_ITEM_CLASS + "> ." + FIELD_ITEM_CONTENT_CLASS + "> .dx-texteditor").length, 1, "editor has field-item-content class");
         assert.equal(contentReadyStub.callCount, windowUtils.hasWindow() ? 1 : 0, "contentReady event");
     });
 
@@ -111,7 +128,7 @@ QUnit.module("Layout manager", () => {
         });
 
         // assert
-        assert.equal($testContainer.find("." + internals.FIELD_ITEM_CLASS + " .dx-texteditor-input").attr("alt"), "test", "attr merge successfully");
+        assert.equal($testContainer.find("." + FIELD_ITEM_CLASS + " .dx-texteditor-input").attr("alt"), "test", "attr merge successfully");
     });
 
     test("Default render with template", function(assert) {
@@ -149,7 +166,7 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $items = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+            $items = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.equal($items.length, 2, "field items is rendered");
@@ -167,7 +184,7 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $items = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+            $items = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.equal($items.length, 2, "field items is rendered");
@@ -175,16 +192,16 @@ QUnit.module("Layout manager", () => {
         let $requiredItem = $items.eq(0),
             $optionalItem = $items.eq(1);
 
-        assert.ok($requiredItem.hasClass(internals.FIELD_ITEM_REQUIRED_CLASS), "field item has required class");
-        assert.ok(!$requiredItem.hasClass(internals.FIELD_ITEM_OPTIONAL_CLASS), "field item hasn't optional class");
-        assert.ok($requiredItem.find("." + internals.FIELD_ITEM_REQUIRED_MARK_CLASS).length, "field item has required mark");
-        assert.ok(!$requiredItem.find("." + internals.FIELD_ITEM_OPTIONAL_MARK_CLASS).length, "field item hasn't optional mark");
+        assert.ok($requiredItem.hasClass(FIELD_ITEM_REQUIRED_CLASS), "field item has required class");
+        assert.ok(!$requiredItem.hasClass(FIELD_ITEM_OPTIONAL_CLASS), "field item hasn't optional class");
+        assert.ok($requiredItem.find("." + FIELD_ITEM_REQUIRED_MARK_CLASS).length, "field item has required mark");
+        assert.ok(!$requiredItem.find("." + FIELD_ITEM_OPTIONAL_MARK_CLASS).length, "field item hasn't optional mark");
 
 
-        assert.ok(!$optionalItem.hasClass(internals.FIELD_ITEM_REQUIRED_CLASS), "field item hasn't required class");
-        assert.ok($optionalItem.hasClass(internals.FIELD_ITEM_OPTIONAL_CLASS), "field item has optional class");
-        assert.ok(!$optionalItem.find("." + internals.FIELD_ITEM_REQUIRED_MARK_CLASS).length, "field item hasn't required mark");
-        assert.ok(!$optionalItem.find("." + internals.FIELD_ITEM_OPTIONAL_MARK_CLASS).length, "field item hasn't optional mark");
+        assert.ok(!$optionalItem.hasClass(FIELD_ITEM_REQUIRED_CLASS), "field item hasn't required class");
+        assert.ok($optionalItem.hasClass(FIELD_ITEM_OPTIONAL_CLASS), "field item has optional class");
+        assert.ok(!$optionalItem.find("." + FIELD_ITEM_REQUIRED_MARK_CLASS).length, "field item hasn't required mark");
+        assert.ok(!$optionalItem.find("." + FIELD_ITEM_OPTIONAL_MARK_CLASS).length, "field item hasn't optional mark");
     });
 
     test("Show optional marks", function(assert) {
@@ -196,16 +213,16 @@ QUnit.module("Layout manager", () => {
                 }],
                 showOptionalMark: true
             }),
-            $items = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+            $items = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.equal($items.length, 1, "field items is rendered");
 
         let $optionalItem = $items.eq(0);
-        assert.ok(!$optionalItem.hasClass(internals.FIELD_ITEM_REQUIRED_CLASS), "field item hasn't required class");
-        assert.ok($optionalItem.hasClass(internals.FIELD_ITEM_OPTIONAL_CLASS), "field item has optional class");
-        assert.ok(!$optionalItem.find("." + internals.FIELD_ITEM_REQUIRED_MARK_CLASS).length, "field item hasn't required mark");
-        assert.ok($optionalItem.find("." + internals.FIELD_ITEM_OPTIONAL_MARK_CLASS).length, "field item hasn optional mark");
+        assert.ok(!$optionalItem.hasClass(FIELD_ITEM_REQUIRED_CLASS), "field item hasn't required class");
+        assert.ok($optionalItem.hasClass(FIELD_ITEM_OPTIONAL_CLASS), "field item has optional class");
+        assert.ok(!$optionalItem.find("." + FIELD_ITEM_REQUIRED_MARK_CLASS).length, "field item hasn't required mark");
+        assert.ok($optionalItem.find("." + FIELD_ITEM_OPTIONAL_MARK_CLASS).length, "field item hasn optional mark");
     });
 
     test("Render custom marks", function(assert) {
@@ -223,14 +240,14 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $items = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+            $items = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         let $requiredItem = $items.eq(0),
             $optionalItem = $items.eq(1);
 
-        assert.equal($.trim($requiredItem.find("." + internals.FIELD_ITEM_REQUIRED_MARK_CLASS).text()), "+", "custom required mark");
-        assert.equal($.trim($optionalItem.find("." + internals.FIELD_ITEM_OPTIONAL_MARK_CLASS).text()), "-", "custom optional mark");
+        assert.equal($.trim($requiredItem.find("." + FIELD_ITEM_REQUIRED_MARK_CLASS).text()), "+", "custom required mark");
+        assert.equal($.trim($optionalItem.find("." + FIELD_ITEM_OPTIONAL_MARK_CLASS).text()), "-", "custom optional mark");
     });
 
     test("Change marks", function(assert) {
@@ -253,12 +270,12 @@ QUnit.module("Layout manager", () => {
         instance.option("requiredMark", "+");
 
         // assert
-        let $items = $testContainer.find("." + internals.FIELD_ITEM_CLASS),
+        let $items = $testContainer.find("." + FIELD_ITEM_CLASS),
             $requiredItem = $items.eq(0),
             $optionalItem = $items.eq(1);
 
-        assert.equal($.trim($requiredItem.find("." + internals.FIELD_ITEM_REQUIRED_MARK_CLASS).text()), "+", "custom required mark");
-        assert.equal($.trim($optionalItem.find("." + internals.FIELD_ITEM_OPTIONAL_MARK_CLASS).text()), "-", "custom optional mark");
+        assert.equal($.trim($requiredItem.find("." + FIELD_ITEM_REQUIRED_MARK_CLASS).text()), "+", "custom required mark");
+        assert.equal($.trim($optionalItem.find("." + FIELD_ITEM_OPTIONAL_MARK_CLASS).text()), "-", "custom optional mark");
     });
 
     test("Change marks visibility", function(assert) {
@@ -274,7 +291,7 @@ QUnit.module("Layout manager", () => {
                 }]
             }),
             instance = $testContainer.dxLayoutManager("instance"),
-            $items = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+            $items = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // act
         instance.option("showOptionalMark", true);
@@ -284,8 +301,8 @@ QUnit.module("Layout manager", () => {
         let $requiredItem = $items.eq(0),
             $optionalItem = $items.eq(1);
 
-        assert.ok($requiredItem.find("." + internals.FIELD_ITEM_REQUIRED_MARK_CLASS).length, "Item has no required mark");
-        assert.ok(!$optionalItem.find("." + internals.FIELD_ITEM_OPTIONAL_MARK_CLASS).length, "Item has optional mark");
+        assert.ok($requiredItem.find("." + FIELD_ITEM_REQUIRED_MARK_CLASS).length, "Item has no required mark");
+        assert.ok(!$optionalItem.find("." + FIELD_ITEM_OPTIONAL_MARK_CLASS).length, "Item has optional mark");
     });
 
     test("Render read only layoutManager", function(assert) {
@@ -299,7 +316,7 @@ QUnit.module("Layout manager", () => {
         });
 
         // assert
-        assert.ok($testContainer.find("." + internals.FIELD_ITEM_CLASS + " .dx-texteditor").hasClass(READONLY_STATE_CLASS), "editor is read only");
+        assert.ok($testContainer.find("." + FIELD_ITEM_CLASS + " .dx-texteditor").hasClass(READONLY_STATE_CLASS), "editor is read only");
     });
 
     test("Render label by default", function(assert) {
@@ -316,14 +333,14 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $label = $testContainer.find("." + internals.FIELD_ITEM_LABEL_CLASS).first();
+            $label = $testContainer.find("." + FIELD_ITEM_LABEL_CLASS).first();
 
         // assert
         assert.equal($label.length, 1, "label is rendered");
-        assert.ok($label.hasClass(internals.FIELD_ITEM_LABEL_LOCATION_CLASS + "left"), "label's location is left by default");
+        assert.ok($label.hasClass(FIELD_ITEM_LABEL_LOCATION_CLASS + "left"), "label's location is left by default");
         assert.equal($label.text(), "Name", "text of label");
         assert.equal($label.attr("for"), "dx_FormID_name", "text of label");
-        assert.ok($label.parent().hasClass(internals.LABEL_HORIZONTAL_ALIGNMENT_CLASS), "field item contains label has horizontal align class");
+        assert.ok($label.parent().hasClass(LABEL_HORIZONTAL_ALIGNMENT_CLASS), "field item contains label has horizontal align class");
     });
 
     test("Baseline align of label for large editors is applied when browser is supported flex", function(assert) {
@@ -339,11 +356,11 @@ QUnit.module("Layout manager", () => {
 
         layoutManager._hasBrowserFlex = () => true;
         layoutManager.option("items", items);
-        const $items = $testContainer.find(`.${internals.FIELD_ITEM_CLASS}`);
+        const $items = $testContainer.find(`.${FIELD_ITEM_CLASS}`);
 
         $items.toArray().forEach((item, index) => {
             const hasBaseLine = index > 1;
-            assert.equal($(item).hasClass(internals.FIELD_ITEM_LABEL_ALIGN_CLASS), hasBaseLine, `item ${!hasBaseLine ? "doesn't" : ""} have baseline alignment class`);
+            assert.equal($(item).hasClass(FIELD_ITEM_LABEL_ALIGN_CLASS), hasBaseLine, `item ${!hasBaseLine ? "doesn't" : ""} have baseline alignment class`);
         });
     });
 
@@ -359,10 +376,10 @@ QUnit.module("Layout manager", () => {
             }))
         });
 
-        const $items = $testContainer.find(`.${internals.FIELD_ITEM_CLASS}`);
+        const $items = $testContainer.find(`.${FIELD_ITEM_CLASS}`);
 
         $items.toArray().forEach(item => {
-            assert.notOk($(item).hasClass(internals.FIELD_ITEM_LABEL_ALIGN_CLASS), "item doesn't have baseline alignment class");
+            assert.notOk($(item).hasClass(FIELD_ITEM_LABEL_ALIGN_CLASS), "item doesn't have baseline alignment class");
         });
     });
 
@@ -379,7 +396,7 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $label = $testContainer.find("." + internals.FIELD_ITEM_CLASS + " label").first(),
+            $label = $testContainer.find("." + FIELD_ITEM_CLASS + " label").first(),
             $input = $testContainer.find("input");
 
         // assert
@@ -398,10 +415,10 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $fieldItemChildren = $testContainer.find("." + internals.FIELD_ITEM_CLASS).children();
+            $fieldItemChildren = $testContainer.find("." + FIELD_ITEM_CLASS).children();
 
         // assert
-        assert.ok($fieldItemChildren.first().hasClass(internals.FIELD_ITEM_LABEL_LOCATION_CLASS + "top"), "check location class");
+        assert.ok($fieldItemChildren.first().hasClass(FIELD_ITEM_LABEL_LOCATION_CLASS + "top"), "check location class");
         assert.ok($fieldItemChildren.first().is("label"), "Label is the first child");
     });
 
@@ -416,10 +433,10 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $fieldItemChildren = $testContainer.find("." + internals.FIELD_ITEM_CLASS).children();
+            $fieldItemChildren = $testContainer.find("." + FIELD_ITEM_CLASS).children();
 
         // assert
-        assert.ok($fieldItemChildren.last().hasClass(internals.FIELD_ITEM_LABEL_LOCATION_CLASS + "bottom"), "check location class");
+        assert.ok($fieldItemChildren.last().hasClass(FIELD_ITEM_LABEL_LOCATION_CLASS + "bottom"), "check location class");
         assert.ok($fieldItemChildren.last().is("label"), "Label is the last child");
     });
 
@@ -435,10 +452,10 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $label = $testContainer.find("." + internals.FIELD_ITEM_CLASS + " label").first();
+            $label = $testContainer.find("." + FIELD_ITEM_CLASS + " label").first();
 
         // assert
-        assert.ok($label.parent().hasClass(internals.LABEL_VERTICAL_ALIGNMENT_CLASS), "Field item contains label that has vertical align");
+        assert.ok($label.parent().hasClass(LABEL_VERTICAL_ALIGNMENT_CLASS), "Field item contains label that has vertical align");
         assert.equal($label.css("textAlign"), "left", "Label has text-align left");
     });
 
@@ -454,10 +471,10 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $label = $testContainer.find("." + internals.FIELD_ITEM_CLASS + " label").first();
+            $label = $testContainer.find("." + FIELD_ITEM_CLASS + " label").first();
 
         // assert
-        assert.ok($label.parent().hasClass(internals.LABEL_VERTICAL_ALIGNMENT_CLASS), "Field item contains label that has vertical align");
+        assert.ok($label.parent().hasClass(LABEL_VERTICAL_ALIGNMENT_CLASS), "Field item contains label that has vertical align");
         assert.equal($label.css("textAlign"), "center", "Label has text-align center");
     });
 
@@ -473,10 +490,10 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $label = $testContainer.find("." + internals.FIELD_ITEM_CLASS + " label").first();
+            $label = $testContainer.find("." + FIELD_ITEM_CLASS + " label").first();
 
         // assert
-        assert.ok($label.parent().hasClass(internals.LABEL_VERTICAL_ALIGNMENT_CLASS), "Field item contains label that has vertical align");
+        assert.ok($label.parent().hasClass(LABEL_VERTICAL_ALIGNMENT_CLASS), "Field item contains label that has vertical align");
         assert.equal($label.css("textAlign"), "right", "Label has text-align right");
     });
 
@@ -491,10 +508,10 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $fieldItem = $testContainer.find("." + internals.FIELD_ITEM_CLASS).first();
+            $fieldItem = $testContainer.find("." + FIELD_ITEM_CLASS).first();
 
         // assert
-        assert.ok($fieldItem.hasClass(internals.LABEL_HORIZONTAL_ALIGNMENT_CLASS), "Field item contains label that has horizontal align");
+        assert.ok($fieldItem.hasClass(LABEL_HORIZONTAL_ALIGNMENT_CLASS), "Field item contains label that has horizontal align");
     });
 
     test("Render label with default position and alignment left", function(assert) {
@@ -508,7 +525,7 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $label = $testContainer.find("." + internals.FIELD_ITEM_CLASS + " label").first();
+            $label = $testContainer.find("." + FIELD_ITEM_CLASS + " label").first();
 
         // assert
         assert.equal($label.css("textAlign"), "left", "Label has text-align left");
@@ -525,7 +542,7 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $label = $testContainer.find("." + internals.FIELD_ITEM_CLASS + " label").first();
+            $label = $testContainer.find("." + FIELD_ITEM_CLASS + " label").first();
 
         // assert
         assert.equal($label.css("textAlign"), "center", "Label has text-align center");
@@ -540,7 +557,7 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $label = $testContainer.find("." + internals.FIELD_ITEM_LABEL_CLASS).first();
+            $label = $testContainer.find("." + FIELD_ITEM_LABEL_CLASS).first();
 
         // assert
         assert.equal($label.text(), "Name:", "text of label");
@@ -556,7 +573,7 @@ QUnit.module("Layout manager", () => {
         });
 
         // assert
-        assert.ok(!$testContainer.find("." + internals.FIELD_ITEM_LABEL_CLASS).length);
+        assert.ok(!$testContainer.find("." + FIELD_ITEM_LABEL_CLASS).length);
     });
 
     test("If item is not visible we will not render them", function(assert) {
@@ -571,12 +588,12 @@ QUnit.module("Layout manager", () => {
                     dataField: "Phone"
                 }]
             }),
-            $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+            $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.equal($fieldItems.length, 2, "We have only two visible items");
-        assert.equal($fieldItems.first().find("." + internals.FIELD_ITEM_LABEL_CLASS).text(), "First Name", "Correct first item rendered");
-        assert.equal($fieldItems.last().find("." + internals.FIELD_ITEM_LABEL_CLASS).text(), "Phone", "Correct second item rendered");
+        assert.equal($fieldItems.first().find("." + FIELD_ITEM_LABEL_CLASS).text(), "First Name", "Correct first item rendered");
+        assert.equal($fieldItems.last().find("." + FIELD_ITEM_LABEL_CLASS).text(), "Phone", "Correct second item rendered");
     });
 
     test("Item should be removed from DOM if it's visibility changed", function(assert) {
@@ -591,17 +608,17 @@ QUnit.module("Layout manager", () => {
                 }]
             }),
             instance = $testContainer.dxLayoutManager("instance"),
-            $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+            $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.equal($fieldItems.length, 3, "We have 3 visible items");
 
         instance.option("items[1].visible", false);
-        $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+        $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         assert.equal($fieldItems.length, 2, "We have 2 visible items");
-        assert.equal($fieldItems.first().find("." + internals.FIELD_ITEM_LABEL_CLASS).text(), "First Name", "Correct first item rendered");
-        assert.equal($fieldItems.last().find("." + internals.FIELD_ITEM_LABEL_CLASS).text(), "Phone", "Correct second item rendered");
+        assert.equal($fieldItems.first().find("." + FIELD_ITEM_LABEL_CLASS).text(), "First Name", "Correct first item rendered");
+        assert.equal($fieldItems.last().find("." + FIELD_ITEM_LABEL_CLASS).text(), "Phone", "Correct second item rendered");
     });
 
     test("Render items as array of strings", function(assert) {
@@ -609,12 +626,12 @@ QUnit.module("Layout manager", () => {
         let $testContainer = $("#container").dxLayoutManager({
                 items: ["FirstName", "LastName"]
             }),
-            $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+            $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.equal($fieldItems.length, 2, "We have two items");
-        assert.equal($fieldItems.first().find("." + internals.FIELD_ITEM_LABEL_CLASS).text(), "First Name", "Correct first item rendered");
-        assert.equal($fieldItems.last().find("." + internals.FIELD_ITEM_LABEL_CLASS).text(), "Last Name", "Correct second item rendered");
+        assert.equal($fieldItems.first().find("." + FIELD_ITEM_LABEL_CLASS).text(), "First Name", "Correct first item rendered");
+        assert.equal($fieldItems.last().find("." + FIELD_ITEM_LABEL_CLASS).text(), "Last Name", "Correct second item rendered");
     });
 
     test("Render mixed set of items(2 as strings, 1 as object)", function(assert) {
@@ -624,13 +641,13 @@ QUnit.module("Layout manager", () => {
                     dataField: "Nickname"
                 }, "LastName"]
             }),
-            $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+            $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.equal($fieldItems.length, 3, "We have three items");
-        assert.equal($fieldItems.first().find("." + internals.FIELD_ITEM_LABEL_CLASS).text(), "First Name", "Correct first item rendered");
-        assert.equal($fieldItems.eq(1).find("." + internals.FIELD_ITEM_LABEL_CLASS).text(), "Nickname", "Correct second item rendered");
-        assert.equal($fieldItems.last().find("." + internals.FIELD_ITEM_LABEL_CLASS).text(), "Last Name", "Correct third item rendered");
+        assert.equal($fieldItems.first().find("." + FIELD_ITEM_LABEL_CLASS).text(), "First Name", "Correct first item rendered");
+        assert.equal($fieldItems.eq(1).find("." + FIELD_ITEM_LABEL_CLASS).text(), "Nickname", "Correct second item rendered");
+        assert.equal($fieldItems.last().find("." + FIELD_ITEM_LABEL_CLASS).text(), "Last Name", "Correct third item rendered");
     });
 
     test("If label is not visible we will not render them", function(assert) {
@@ -643,12 +660,12 @@ QUnit.module("Layout manager", () => {
                     }
                 }]
             }),
-            $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+            $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.equal($fieldItems.length, 1, "We have only one item");
-        assert.equal($fieldItems.find("." + internals.FIELD_ITEM_LABEL_CLASS).length, 0, "We have't labels");
-        assert.equal($fieldItems.find("." + internals.FIELD_ITEM_CONTENT_CLASS).length, 1, "We have widget in field");
+        assert.equal($fieldItems.find("." + FIELD_ITEM_LABEL_CLASS).length, 0, "We have't labels");
+        assert.equal($fieldItems.find("." + FIELD_ITEM_CONTENT_CLASS).length, 1, "We have widget in field");
     });
 
     test("Render label with horizontal alignment (right) ", function(assert) {
@@ -662,11 +679,11 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $fieldItem = $testContainer.find("." + internals.FIELD_ITEM_CLASS).first();
+            $fieldItem = $testContainer.find("." + FIELD_ITEM_CLASS).first();
 
         // assert
-        assert.ok($fieldItem.find("." + internals.FIELD_ITEM_LABEL_CLASS).hasClass(internals.FIELD_ITEM_LABEL_LOCATION_CLASS + "right"), "check location class");
-        assert.ok($fieldItem.hasClass(internals.LABEL_HORIZONTAL_ALIGNMENT_CLASS), "Field item contains label that has horizontal align");
+        assert.ok($fieldItem.find("." + FIELD_ITEM_LABEL_CLASS).hasClass(FIELD_ITEM_LABEL_LOCATION_CLASS + "right"), "check location class");
+        assert.ok($fieldItem.hasClass(LABEL_HORIZONTAL_ALIGNMENT_CLASS), "Field item contains label that has horizontal align");
     });
 
     test("Default render with label", function(assert) {
@@ -682,7 +699,7 @@ QUnit.module("Layout manager", () => {
 
                 }]
             }),
-            $label = $testContainer.find("." + internals.FIELD_ITEM_CLASS + " label").first();
+            $label = $testContainer.find("." + FIELD_ITEM_CLASS + " label").first();
 
         // assert
         assert.equal($label.text(), "New label:", "text of label");
@@ -701,7 +718,7 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $label = $testContainer.find("." + internals.FIELD_ITEM_CLASS + " label").first();
+            $label = $testContainer.find("." + FIELD_ITEM_CLASS + " label").first();
 
         // assert
         assert.equal($label.text(), "New label", "text of label");
@@ -724,7 +741,7 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $input = $testContainer.find("." + internals.FIELD_ITEM_CLASS + " .dx-texteditor input").first();
+            $input = $testContainer.find("." + FIELD_ITEM_CLASS + " .dx-texteditor input").first();
 
         // assert
         assert.equal($input.attr("id"), "dx_FormID_name", "id attr of input");
@@ -767,7 +784,7 @@ QUnit.module("Layout manager", () => {
                     editorType: "dxTextBox"
                 }]
             }),
-            $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+            $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS);
 
 
         // assert
@@ -944,7 +961,7 @@ QUnit.module("Layout manager", () => {
             editorType: "dxDateBox"
         }]);
 
-        $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+        $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.ok($fieldItems.eq(0).find(".dx-numberbox").length, "First item is dxNumberBox");
@@ -1105,7 +1122,7 @@ QUnit.module("Layout manager", () => {
 
         // assert
         assert.equal($editors.length, 1, "There is only one editor");
-        assert.equal($testContainer.find("." + internals.FIELD_ITEM_LABEL_CLASS).text(), "Age", "Correct field rendered");
+        assert.equal($testContainer.find("." + FIELD_ITEM_LABEL_CLASS).text(), "Age", "Correct field rendered");
     });
 
     test("CustomizeItem work well after option change", function(assert) {
@@ -1448,15 +1465,15 @@ QUnit.module("Layout manager", () => {
             }]
         });
 
-        let $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+        let $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
-        assert.equal($fieldItems.eq(0).find("." + internals.FIELD_ITEM_CONTENT_WRAPPER_CLASS).length, 1, "First field item has widget wrapper");
-        assert.equal($fieldItems.eq(0).find("." + internals.FIELD_ITEM_HELP_TEXT_CLASS).length, 1, "First field item has help text element");
-        assert.equal($fieldItems.eq(0).find("." + internals.FIELD_ITEM_HELP_TEXT_CLASS).text(), "Type a name", "Correct help text");
+        assert.equal($fieldItems.eq(0).find("." + FIELD_ITEM_CONTENT_WRAPPER_CLASS).length, 1, "First field item has widget wrapper");
+        assert.equal($fieldItems.eq(0).find("." + FIELD_ITEM_HELP_TEXT_CLASS).length, 1, "First field item has help text element");
+        assert.equal($fieldItems.eq(0).find("." + FIELD_ITEM_HELP_TEXT_CLASS).text(), "Type a name", "Correct help text");
 
-        assert.equal($fieldItems.eq(1).find("." + internals.FIELD_ITEM_CONTENT_WRAPPER_CLASS).length, 0, "Second field item has't widget wrapper");
-        assert.equal($fieldItems.eq(1).find("." + internals.FIELD_ITEM_HELP_TEXT_CLASS).length, 0, "Second field item has't help text element");
+        assert.equal($fieldItems.eq(1).find("." + FIELD_ITEM_CONTENT_WRAPPER_CLASS).length, 0, "Second field item has't widget wrapper");
+        assert.equal($fieldItems.eq(1).find("." + FIELD_ITEM_HELP_TEXT_CLASS).length, 0, "Second field item has't help text element");
     });
 
     test("Change the order of items", function(assert) {
@@ -1583,7 +1600,7 @@ QUnit.module("Layout manager", () => {
         });
 
         // assert
-        assert.equal($testContainer.find("." + internals.FIELD_EMPTY_ITEM_CLASS).length, 1);
+        assert.equal($testContainer.find("." + FIELD_EMPTY_ITEM_CLASS).length, 1);
     });
 
     test("Templates of form's items render with deferring_T638831", function(assert) {
@@ -2274,7 +2291,7 @@ QUnit.module("Render multiple columns", () => {
         });
 
         // assert
-        assert.equal($container.find("." + internals.FIELD_ITEM_REQUIRED_MARK_CLASS).length, 2, "2 validation marks rendered");
+        assert.equal($container.find("." + FIELD_ITEM_REQUIRED_MARK_CLASS).length, 2, "2 validation marks rendered");
 
         assert.equal($container.find(".dx-validator [id='dx_FormID_LastName']").length, 1, "validator for lastName");
         assert.equal($container.find(".dx-validator [id='dx_FormID_FirstName']").length, 1, "validator for lastName");
@@ -2321,8 +2338,8 @@ QUnit.module("Render multiple columns", () => {
         });
 
         // assert
-        assert.equal($container.find("." + internals.FIELD_ITEM_REQUIRED_MARK_CLASS).length, 3, "3 required marks rendered");
-        assert.equal($container.find("." + internals.FIELD_ITEM_CLASS).first().find("." + internals.FIELD_ITEM_REQUIRED_MARK_CLASS).length, 0, "First item does not have required mark");
+        assert.equal($container.find("." + FIELD_ITEM_REQUIRED_MARK_CLASS).length, 3, "3 required marks rendered");
+        assert.equal($container.find("." + FIELD_ITEM_CLASS).first().find("." + FIELD_ITEM_REQUIRED_MARK_CLASS).length, 0, "First item does not have required mark");
     });
 });
 
@@ -2354,7 +2371,7 @@ QUnit.module("Templates", () => {
         });
 
         // act
-        let $fieldItemWidget = $testContainer.find("." + internals.FIELD_ITEM_CONTENT_CLASS),
+        let $fieldItemWidget = $testContainer.find("." + FIELD_ITEM_CONTENT_CLASS),
             spanText = $fieldItemWidget.find("span").text(),
             textArea = $fieldItemWidget.find(".dx-textarea").dxTextArea("instance"),
             layoutManager = $testContainer.dxLayoutManager("instance");
@@ -2414,7 +2431,7 @@ QUnit.module("Templates", () => {
         });
 
         // act
-        let $fieldItemWidget = $testContainer.find("." + internals.FIELD_ITEM_CONTENT_CLASS),
+        let $fieldItemWidget = $testContainer.find("." + FIELD_ITEM_CONTENT_CLASS),
             textArea = $fieldItemWidget.find(".dx-textarea").dxTextArea("instance"),
             layoutManager = $testContainer.dxLayoutManager("instance");
 
@@ -2513,7 +2530,7 @@ QUnit.module("Accessibility", () => {
         });
 
         // act
-        let $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+        let $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.equal($fieldItems.first().find("input").attr("aria-required"), "false", "First item isn't required");
@@ -2532,9 +2549,9 @@ QUnit.module("Accessibility", () => {
         });
 
         // act
-        let $fieldItem = $testContainer.find("." + internals.FIELD_ITEM_CLASS),
+        let $fieldItem = $testContainer.find("." + FIELD_ITEM_CLASS),
             itemDescribedBy = $fieldItem.find("input").attr("aria-describedby"),
-            helpTextID = $fieldItem.find("." + internals.FIELD_ITEM_HELP_TEXT_CLASS).attr("id");
+            helpTextID = $fieldItem.find("." + FIELD_ITEM_HELP_TEXT_CLASS).attr("id");
 
         // assert
         assert.equal(itemDescribedBy, helpTextID, "Help text id and input's describedby attributes are equal");
@@ -2548,7 +2565,7 @@ QUnit.module("Accessibility", () => {
         items.forEach(({ dataField, editorType }) => {
             const editor = layoutManager.getEditor(dataField);
             const $ariaTarget = editor._getAriaTarget();
-            const $label = editor.$element().closest(`.${internals.FIELD_ITEM_CLASS}`).children().first();
+            const $label = editor.$element().closest(`.${FIELD_ITEM_CLASS}`).children().first();
             const editorClassName = `dx-${editorType.toLowerCase().substr(2)}`;
 
             if(inArray(editorClassName, editorClassesRequiringIdForLabel) !== -1) {
@@ -2588,7 +2605,7 @@ QUnit.module("Layout manager responsibility", {
         });
 
         // assert
-        assert.ok(!$testContainer.hasClass(internals.LAYOUT_MANAGER_ONE_COLUMN), "Layout manager hasn't one column mode");
+        assert.ok(!$testContainer.hasClass(LAYOUT_MANAGER_ONE_COLUMN), "Layout manager hasn't one column mode");
     });
 
     test("Small screen size", function(assert) {
@@ -2609,7 +2626,7 @@ QUnit.module("Layout manager responsibility", {
         this.updateScreenSize(600);
 
         // assert
-        assert.ok($testContainer.hasClass(internals.LAYOUT_MANAGER_ONE_COLUMN), "Layout manager has one column mode");
+        assert.ok($testContainer.hasClass(LAYOUT_MANAGER_ONE_COLUMN), "Layout manager has one column mode");
     });
 });
 
@@ -3112,13 +3129,13 @@ QUnit.module("Supported editors", () => {
         const $testContainer = layoutManager.$element();
 
         checkSupportedEditors((editor, className) => {
-            assert.notOk($testContainer.find(`.${internals.FIELD_ITEM_CLASS} .${className}`).hasClass(READONLY_STATE_CLASS), `${editor}: editor is not read only`);
+            assert.notOk($testContainer.find(`.${FIELD_ITEM_CLASS} .${className}`).hasClass(READONLY_STATE_CLASS), `${editor}: editor is not read only`);
         });
 
         layoutManager.option("readOnly", true);
 
         checkSupportedEditors((editor, className) => {
-            assert.ok($testContainer.find(`.${internals.FIELD_ITEM_CLASS} .${className}`).hasClass(READONLY_STATE_CLASS), `${editor}: editor is read only`);
+            assert.ok($testContainer.find(`.${FIELD_ITEM_CLASS} .${className}`).hasClass(READONLY_STATE_CLASS), `${editor}: editor is read only`);
         });
     });
 
@@ -3127,7 +3144,7 @@ QUnit.module("Supported editors", () => {
         const $testContainer = layoutManager.$element();
 
         checkSupportedEditors((editor, className) => {
-            assert.ok($testContainer.find(`.${internals.FIELD_ITEM_CLASS} .${className}`).hasClass(READONLY_STATE_CLASS), `${editor}: editor is read only`);
+            assert.ok($testContainer.find(`.${FIELD_ITEM_CLASS} .${className}`).hasClass(READONLY_STATE_CLASS), `${editor}: editor is read only`);
         });
     });
 
@@ -3139,7 +3156,7 @@ QUnit.module("Supported editors", () => {
         layoutManager.option("readOnly", false);
 
         checkSupportedEditors((editor, className) => {
-            assert.ok($testContainer.find(`.${internals.FIELD_ITEM_CLASS} .${className}`).hasClass(READONLY_STATE_CLASS), `${editor}: editor is read only`);
+            assert.ok($testContainer.find(`.${FIELD_ITEM_CLASS} .${className}`).hasClass(READONLY_STATE_CLASS), `${editor}: editor is read only`);
         });
     });
 

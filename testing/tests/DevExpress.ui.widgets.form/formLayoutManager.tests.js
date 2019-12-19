@@ -1,12 +1,16 @@
 import $ from "jquery";
-import { __internals as internals } from "ui/form/ui.form.layout_manager";
-
+import "ui/form/ui.form.layout_manager";
 import "ui/switch";
 import "ui/lookup";
 import "ui/text_area";
 import "ui/radio_group";
 
 import "common.css!";
+
+const FIELD_ITEM_CLASS = "dx-field-item";
+const FIELD_ITEM_LABEL_CLASS = "dx-field-item-label";
+const FIELD_ITEM_LABEL_ALIGN_CLASS = "dx-field-item-label-align";
+const FLEX_LAYOUT_CLASS = "dx-flex-layout";
 
 QUnit.testStart(function() {
     var markup =
@@ -53,7 +57,7 @@ QUnit.test("Layout strategy when flex is not supported", function(assert) {
 
     // assert
     assert.equal(layoutManager._responsiveBox.option("_layoutStrategy"), "fallback");
-    assert.equal($testContainer.find("." + internals.FIELD_ITEM_CLASS + "." + internals.FLEX_LAYOUT_CLASS).length, 0, "flex layout class");
+    assert.equal($testContainer.find("." + FIELD_ITEM_CLASS + "." + FLEX_LAYOUT_CLASS).length, 0, "flex layout class");
 });
 
 QUnit.test("Layout strategy when flex is supported", function(assert) {
@@ -92,7 +96,7 @@ QUnit.test("Layout strategy when flex is supported", function(assert) {
 
     // assert
     assert.equal(layoutManager._responsiveBox.option("_layoutStrategy"), "flex");
-    assert.equal($testContainer.find("." + internals.FIELD_ITEM_CLASS + "." + internals.FLEX_LAYOUT_CLASS).length, 5, "flex layout class");
+    assert.equal($testContainer.find("." + FIELD_ITEM_CLASS + "." + FLEX_LAYOUT_CLASS).length, 5, "flex layout class");
 });
 
 QUnit.test("Check label alignment classes when browser is not supported flex", function(assert) {
@@ -129,14 +133,14 @@ QUnit.test("Check label alignment classes when browser is not supported flex", f
         return false;
     };
     layoutManager.option("items", items);
-    $items = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+    $items = $testContainer.find("." + FIELD_ITEM_CLASS);
 
     // assert
-    assert.ok(!$items.eq(0).hasClass(internals.FIELD_ITEM_LABEL_ALIGN_CLASS), "item doesn't have baseline alignment class");
-    assert.ok($items.eq(1).hasClass(internals.FIELD_ITEM_LABEL_ALIGN_CLASS), "item have baseline alignment class");
-    assert.ok($items.eq(2).hasClass(internals.FIELD_ITEM_LABEL_ALIGN_CLASS), "item have baseline alignment class");
-    assert.ok($items.eq(3).hasClass(internals.FIELD_ITEM_LABEL_ALIGN_CLASS), "item have baseline alignment class");
-    assert.ok($items.eq(4).hasClass(internals.FIELD_ITEM_LABEL_ALIGN_CLASS), "item have baseline alignment class");
+    assert.ok(!$items.eq(0).hasClass(FIELD_ITEM_LABEL_ALIGN_CLASS), "item doesn't have baseline alignment class");
+    assert.ok($items.eq(1).hasClass(FIELD_ITEM_LABEL_ALIGN_CLASS), "item have baseline alignment class");
+    assert.ok($items.eq(2).hasClass(FIELD_ITEM_LABEL_ALIGN_CLASS), "item have baseline alignment class");
+    assert.ok($items.eq(3).hasClass(FIELD_ITEM_LABEL_ALIGN_CLASS), "item have baseline alignment class");
+    assert.ok($items.eq(4).hasClass(FIELD_ITEM_LABEL_ALIGN_CLASS), "item have baseline alignment class");
 });
 
 QUnit.test("Check clickable fielditem", function(assert) {
@@ -156,7 +160,7 @@ QUnit.test("Check clickable fielditem", function(assert) {
                 }
             ]
         }),
-        $fieldItemLabels = $testContainer.find("." + internals.FIELD_ITEM_LABEL_CLASS),
+        $fieldItemLabels = $testContainer.find("." + FIELD_ITEM_LABEL_CLASS),
         instance = $testContainer.dxLayoutManager("instance");
 
     // act
@@ -194,7 +198,7 @@ QUnit.test("Generate several various widgets in layout", function(assert) {
                 }
             ]
         }),
-        $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS),
+        $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS),
         $dateBox = $fieldItems.eq(2).find(".dx-datebox");
 
 

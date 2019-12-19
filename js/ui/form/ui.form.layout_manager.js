@@ -16,6 +16,7 @@ import styleUtils from "../../core/utils/style";
 import Widget from "../widget/ui.widget";
 import ResponsiveBox from "../responsive_box";
 import { default as SimpleItem } from './ui.form.simple_item';
+import { default as EmptyItem } from './ui.form.empty_item';
 
 import "../text_box";
 import "../number_box";
@@ -24,35 +25,12 @@ import "../date_box";
 import "../button";
 
 const FORM_EDITOR_BY_DEFAULT = "dxTextBox";
-const FIELD_ITEM_CLASS = "dx-field-item";
-const FIELD_EMPTY_ITEM_CLASS = "dx-field-empty-item";
 const FIELD_BUTTON_ITEM_CLASS = "dx-field-button-item";
-const FIELD_ITEM_REQUIRED_CLASS = "dx-field-item-required";
-const FIELD_ITEM_OPTIONAL_CLASS = "dx-field-item-optional";
-const FIELD_ITEM_REQUIRED_MARK_CLASS = "dx-field-item-required-mark";
-const FIELD_ITEM_OPTIONAL_MARK_CLASS = "dx-field-item-optional-mark";
-const FIELD_ITEM_LABEL_CLASS = "dx-field-item-label";
-const FIELD_ITEM_LABEL_ALIGN_CLASS = "dx-field-item-label-align";
-const FIELD_ITEM_LABEL_CONTENT_CLASS = "dx-field-item-label-content";
-const FIELD_ITEM_LABEL_TEXT_CLASS = "dx-field-item-label-text";
-const FIELD_ITEM_LABEL_LOCATION_CLASS = "dx-field-item-label-location-";
-const FIELD_ITEM_CONTENT_CLASS = "dx-field-item-content";
-const FIELD_ITEM_CONTENT_LOCATION_CLASS = "dx-field-item-content-location-";
-const FIELD_ITEM_CONTENT_WRAPPER_CLASS = "dx-field-item-content-wrapper";
-const FIELD_ITEM_HELP_TEXT_CLASS = "dx-field-item-help-text";
 const SINGLE_COLUMN_ITEM_CONTENT = "dx-single-column-item-content";
 
-const LABEL_HORIZONTAL_ALIGNMENT_CLASS = "dx-label-h-align";
-const LABEL_VERTICAL_ALIGNMENT_CLASS = "dx-label-v-align";
-
-const FORM_LAYOUT_MANAGER_CLASS = "dx-layout-manager";
 const LAYOUT_MANAGER_FIRST_ROW_CLASS = "dx-first-row";
 const LAYOUT_MANAGER_FIRST_COL_CLASS = "dx-first-col";
 const LAYOUT_MANAGER_LAST_COL_CLASS = "dx-last-col";
-const LAYOUT_MANAGER_ONE_COLUMN = "dx-layout-manager-one-col";
-
-const FLEX_LAYOUT_CLASS = "dx-flex-layout";
-
 const LAYOUT_STRATEGY_FLEX = "flex";
 const LAYOUT_STRATEGY_FALLBACK = "fallback";
 
@@ -291,7 +269,7 @@ const LayoutManager = Widget.inherit({
 
     _initMarkup: function() {
         this._itemsRunTimeInfo.clear();
-        this.$element().addClass(FORM_LAYOUT_MANAGER_CLASS);
+        this.$element().addClass("dx-layout-manager");
 
         this.callBase();
         this._renderResponsiveBox();
@@ -339,11 +317,13 @@ const LayoutManager = Widget.inherit({
         this._refresh();
     },
 
-    _renderTemplate: function($container, item) {
+    _renderItem: function($container, item) {
         switch(item.itemType) {
-            case "empty":
-                this._renderEmptyItem($container);
+            case "empty": {
+                const emptyItem = new EmptyItem();
+                emptyItem.render($container);
                 break;
+            }
             case "button":
                 this._renderButtonItem(item, $container);
                 break;
@@ -384,7 +364,7 @@ const LayoutManager = Widget.inherit({
     _renderTemplates: function(templatesInfo) {
         var that = this;
         each(templatesInfo, function(index, info) {
-            that._renderTemplate(info.container, info.formItem);
+            that._renderItem(info.container, info.formItem);
         });
     },
 
@@ -401,7 +381,7 @@ const LayoutManager = Widget.inherit({
                     isSingleColumnMode = that.isSingleColumnMode();
 
                 if(onLayoutChanged) {
-                    that.$element().toggleClass(LAYOUT_MANAGER_ONE_COLUMN, isSingleColumnMode);
+                    that.$element().toggleClass("dx-layout-manager-one-col", isSingleColumnMode);
                     onLayoutChanged(isSingleColumnMode);
                 }
             },
@@ -410,7 +390,7 @@ const LayoutManager = Widget.inherit({
                     that._renderTemplates(templatesInfo);
                 }
                 if(that.option("onLayoutChanged")) {
-                    that.$element().toggleClass(LAYOUT_MANAGER_ONE_COLUMN, that.isSingleColumnMode(e.component));
+                    that.$element().toggleClass("dx-layout-manager-one-col", that.isSingleColumnMode(e.component));
                 }
             },
             itemTemplate: function(e, itemData, itemElement) {
@@ -551,12 +531,6 @@ const LayoutManager = Widget.inherit({
         return result;
     },
 
-    _renderEmptyItem: function($container) {
-        return $container
-            .addClass(FIELD_EMPTY_ITEM_CLASS)
-            .html("&nbsp;");
-    },
-
     _getButtonHorizontalAlignment: function(item) {
         if(isDefined(item.horizontalAlignment)) {
             return item.horizontalAlignment;
@@ -608,69 +582,9 @@ const LayoutManager = Widget.inherit({
 
     _addItemClasses: function($item, column) {
         $item
-            .addClass(FIELD_ITEM_CLASS)
+            .addClass("dx-field-item")
             .addClass(this.option("cssItemClass"))
             .addClass(isDefined(column) ? "dx-col-" + column : "");
-    },
-
-    _renderLabel: function(options) {
-        const { text, id, location, alignment, isRequired, labelID = null } = options;
-
-        if(isDefined(text) && text.length > 0) {
-            const labelClasses = FIELD_ITEM_LABEL_CLASS + " " + FIELD_ITEM_LABEL_LOCATION_CLASS + location;
-            const $label = $("<label>")
-                .addClass(labelClasses)
-                .attr("for", id)
-                .attr("id", labelID);
-
-            const $labelContent = $("<span>")
-                .addClass(FIELD_ITEM_LABEL_CONTENT_CLASS)
-                .appendTo($label);
-
-            $("<span>")
-                .addClass(FIELD_ITEM_LABEL_TEXT_CLASS)
-                .text(text)
-                .appendTo($labelContent);
-
-            if(alignment) {
-                $label.css("textAlign", alignment);
-            }
-
-            $labelContent.append(this._renderLabelMark(isRequired));
-
-            return $label;
-        }
-    },
-
-    _renderLabelMark: function(isRequired) {
-        var $mark,
-            requiredMarksConfig = this._getRequiredMarksConfig(),
-            isRequiredMark = requiredMarksConfig.showRequiredMark && isRequired,
-            isOptionalMark = requiredMarksConfig.showOptionalMark && !isRequired;
-
-        if(isRequiredMark || isOptionalMark) {
-            var markClass = isRequiredMark ? FIELD_ITEM_REQUIRED_MARK_CLASS : FIELD_ITEM_OPTIONAL_MARK_CLASS,
-                markText = isRequiredMark ? requiredMarksConfig.requiredMark : requiredMarksConfig.optionalMark;
-
-            $mark = $("<span>")
-                .addClass(markClass)
-                .html("&nbsp" + markText);
-        }
-
-        return $mark;
-    },
-
-    _getRequiredMarksConfig: function() {
-        if(!this._cashedRequiredConfig) {
-            this._cashedRequiredConfig = {
-                showRequiredMark: this.option("showRequiredMark"),
-                showOptionalMark: this.option("showOptionalMark"),
-                requiredMark: this.option("requiredMark"),
-                optionalMark: this.option("optionalMark")
-            };
-        }
-
-        return this._cashedRequiredConfig;
     },
 
     _getComponentOwner: function() {
@@ -922,28 +836,3 @@ const LayoutManager = Widget.inherit({
 registerComponent("dxLayoutManager", LayoutManager);
 
 module.exports = LayoutManager;
-
-//#DEBUG
-module.exports.__internals = {
-    FIELD_ITEM_CLASS: FIELD_ITEM_CLASS,
-    FIELD_EMPTY_ITEM_CLASS: FIELD_EMPTY_ITEM_CLASS,
-    FIELD_ITEM_CONTENT_CLASS: FIELD_ITEM_CONTENT_CLASS,
-    FIELD_ITEM_CONTENT_LOCATION_CLASS: FIELD_ITEM_CONTENT_LOCATION_CLASS,
-    FIELD_ITEM_LABEL_CLASS: FIELD_ITEM_LABEL_CLASS,
-    FIELD_ITEM_LABEL_ALIGN_CLASS: FIELD_ITEM_LABEL_ALIGN_CLASS,
-    FIELD_ITEM_LABEL_LOCATION_CLASS: FIELD_ITEM_LABEL_LOCATION_CLASS,
-    LABEL_HORIZONTAL_ALIGNMENT_CLASS: LABEL_HORIZONTAL_ALIGNMENT_CLASS,
-    LABEL_VERTICAL_ALIGNMENT_CLASS: LABEL_VERTICAL_ALIGNMENT_CLASS,
-    FORM_LAYOUT_MANAGER_CLASS: FORM_LAYOUT_MANAGER_CLASS,
-    FIELD_ITEM_CONTENT_WRAPPER_CLASS: FIELD_ITEM_CONTENT_WRAPPER_CLASS,
-    FIELD_ITEM_HELP_TEXT_CLASS: FIELD_ITEM_HELP_TEXT_CLASS,
-    FIELD_ITEM_LABEL_CONTENT_CLASS: FIELD_ITEM_LABEL_CONTENT_CLASS,
-    FIELD_ITEM_LABEL_TEXT_CLASS: FIELD_ITEM_LABEL_TEXT_CLASS,
-    FIELD_ITEM_REQUIRED_CLASS: FIELD_ITEM_REQUIRED_CLASS,
-    FIELD_ITEM_OPTIONAL_CLASS: FIELD_ITEM_OPTIONAL_CLASS,
-    FIELD_ITEM_REQUIRED_MARK_CLASS: FIELD_ITEM_REQUIRED_MARK_CLASS,
-    FIELD_ITEM_OPTIONAL_MARK_CLASS: FIELD_ITEM_OPTIONAL_MARK_CLASS,
-    LAYOUT_MANAGER_ONE_COLUMN: LAYOUT_MANAGER_ONE_COLUMN,
-    FLEX_LAYOUT_CLASS: FLEX_LAYOUT_CLASS
-};
-//#ENDDEBUG

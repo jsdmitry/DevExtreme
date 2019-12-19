@@ -12,17 +12,12 @@ import eventsEngine from "../../events/core/events_engine";
 import clickEvent from "../../events/click";
 import Validator from "../validator";
 import stringUtils from "../../core/utils/string";
+import { renderLabel } from "./ui.form.utils";
 
 const FIELD_ITEM_CLASS = "dx-field-item";
 const FIELD_ITEM_REQUIRED_CLASS = "dx-field-item-required";
 const FIELD_ITEM_OPTIONAL_CLASS = "dx-field-item-optional";
-const FIELD_ITEM_REQUIRED_MARK_CLASS = "dx-field-item-required-mark";
-const FIELD_ITEM_OPTIONAL_MARK_CLASS = "dx-field-item-optional-mark";
-const FIELD_ITEM_LABEL_CLASS = "dx-field-item-label";
 const FIELD_ITEM_LABEL_ALIGN_CLASS = "dx-field-item-label-align";
-const FIELD_ITEM_LABEL_CONTENT_CLASS = "dx-field-item-label-content";
-const FIELD_ITEM_LABEL_TEXT_CLASS = "dx-field-item-label-text";
-const FIELD_ITEM_LABEL_LOCATION_CLASS = "dx-field-item-label-location-";
 const FIELD_ITEM_CONTENT_CLASS = "dx-field-item-content";
 const FIELD_ITEM_CONTENT_LOCATION_CLASS = "dx-field-item-content-location-";
 const FIELD_ITEM_CONTENT_WRAPPER_CLASS = "dx-field-item-content-wrapper";
@@ -52,61 +47,6 @@ export default class SimpleItem {
         // createComponent
         // formInstance
         this._options = options;
-    }
-
-    _renderLabel(options) {
-        const { text, id, location, alignment, isRequired, labelID = null } = options;
-
-        if(isDefined(text) && text.length > 0) {
-            const labelClasses = FIELD_ITEM_LABEL_CLASS + " " + FIELD_ITEM_LABEL_LOCATION_CLASS + location;
-            const $label = $("<label>")
-                .addClass(labelClasses)
-                .attr("for", id)
-                .attr("id", labelID);
-
-            const $labelContent = $("<span>")
-                .addClass(FIELD_ITEM_LABEL_CONTENT_CLASS)
-                .appendTo($label);
-
-            $("<span>")
-                .addClass(FIELD_ITEM_LABEL_TEXT_CLASS)
-                .text(text)
-                .appendTo($labelContent);
-
-            if(alignment) {
-                $label.css("textAlign", alignment);
-            }
-
-            $labelContent.append(this._renderLabelMark(isRequired));
-
-            return $label;
-        }
-    }
-
-    _renderLabelMark(isRequired) {
-        let $mark;
-        const requiredMarksConfig = this._getRequiredMarksConfig();
-        const isRequiredMark = requiredMarksConfig.showRequiredMark && isRequired;
-        const isOptionalMark = requiredMarksConfig.showOptionalMark && !isRequired;
-
-        if(isRequiredMark || isOptionalMark) {
-            const markClass = isRequiredMark ? FIELD_ITEM_REQUIRED_MARK_CLASS : FIELD_ITEM_OPTIONAL_MARK_CLASS;
-            const markText = isRequiredMark ? requiredMarksConfig.requiredMark : requiredMarksConfig.optionalMark;
-
-            $mark = $("<span>")
-                .addClass(markClass)
-                .html("&nbsp" + markText);
-        }
-
-        return $mark;
-    }
-
-    _getRequiredMarksConfig() {
-        if(!this._cashedRequiredConfig) {
-            const { showRequiredMark, showOptionalMark, requiredMark, optionalMark } = this._options;
-            this._cashedRequiredConfig = { showRequiredMark, showOptionalMark, requiredMark, optionalMark };
-        }
-        return this._cashedRequiredConfig;
     }
 
     _replaceDataOptions(originalOptions, resultOptions) {
@@ -260,14 +200,18 @@ export default class SimpleItem {
     }
 
     _getLabelOptions(item, id, isRequired) {
-        const { labelLocation, showColonAfterLabel } = this._options;
+        const { labelLocation, showColonAfterLabel, showRequiredMark, showOptionalMark, requiredMark, optionalMark } = this._options;
         const labelOptions = extend(
             {
                 showColon: showColonAfterLabel,
                 location: labelLocation,
                 id,
                 visible: true,
-                isRequired
+                isRequired,
+                showRequiredMark,
+                showOptionalMark,
+                requiredMark,
+                optionalMark
             },
             item ? item.label : {}
         );
@@ -387,7 +331,7 @@ export default class SimpleItem {
         $container.addClass(isRequired ? FIELD_ITEM_REQUIRED_CLASS : FIELD_ITEM_OPTIONAL_CLASS);
 
         if(labelOptions.visible && labelOptions.text) {
-            $label = this._renderLabel(labelOptions).appendTo($container);
+            $label = renderLabel(labelOptions).appendTo($container);
         }
 
         if(item.itemType === SIMPLE_ITEM_TYPE) {

@@ -15,7 +15,6 @@ import Widget from "../widget/ui.widget";
 import Editor from "../editor/editor";
 import { defaultScreenFactorFunc, getCurrentScreenFactor, hasWindow } from "../../core/utils/window";
 import ValidationEngine from "../validation_engine";
-import LayoutManager from "./ui.form.layout_manager";
 import { default as FormItemsRunTimeInfo } from "./ui.form.items_runtime_info";
 import TabPanel from "../tab_panel";
 import Scrollable from "../scroll_view/ui.scrollable";
@@ -30,9 +29,11 @@ import {
     tryGetTabPath,
     getTextWithoutSpaces,
     isExpectedItem,
-    isFullPathContainsTabs
+    isFullPathContainsTabs,
+    renderLabel
 } from "./ui.form.utils";
 
+import "./ui.form.layout_manager";
 import "../validation_summary";
 import "../validation_group";
 
@@ -679,15 +680,19 @@ const Form = Widget.inherit({
         return index;
     },
 
-    _createHiddenElement: function(rootLayoutManager) {
+    _createHiddenElement: function() {
         this._$hiddenElement = $("<div>")
             .addClass(WIDGET_CLASS)
             .addClass(HIDDEN_LABEL_CLASS)
             .appendTo("body");
 
-        var $hiddenLabel = rootLayoutManager._renderLabel({
+        var $hiddenLabel = renderLabel({
             text: " ",
-            location: this._labelLocation()
+            location: this._labelLocation(),
+            showRequiredMark: this.option("showRequiredMark"),
+            showOptionalMark: this.option("showOptionalMark"),
+            requiredMark: this.option("requiredMark"),
+            optionalMark: this.option("optionalMark")
         }).appendTo(this._$hiddenElement);
 
         this._hiddenLabelText = $hiddenLabel.find("." + FIELD_ITEM_LABEL_TEXT_CLASS)[0];
@@ -811,7 +816,7 @@ const Form = Widget.inherit({
             return;
         }
 
-        this._createHiddenElement(layoutManager);
+        this._createHiddenElement();
         if(inOneColumn) {
             this._applyLabelsWidth($container, excludeTabbed, true);
         } else {
@@ -1831,13 +1836,3 @@ const Form = Widget.inherit({
 registerComponent("dxForm", Form);
 
 module.exports = Form;
-
-//#DEBUG
-module.exports.__internals = extend({
-    FORM_CLASS: FORM_CLASS,
-    FORM_GROUP_CLASS: FORM_GROUP_CLASS,
-    FORM_GROUP_CAPTION_CLASS: FORM_GROUP_CAPTION_CLASS,
-    FORM_FIELD_ITEM_COL_CLASS: FORM_FIELD_ITEM_COL_CLASS
-}, LayoutManager.__internals);
-
-//#ENDDEBUG

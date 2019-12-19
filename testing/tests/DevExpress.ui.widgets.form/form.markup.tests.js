@@ -4,14 +4,22 @@ import windowUtils from "core/utils/window";
 import responsiveBoxScreenMock from "../../helpers/responsiveBoxScreenMock.js";
 import { isRenderer } from "core/utils/type";
 import config from "core/config";
-import { __internals as internals } from "ui/form/ui.form";
 import ValidationEngine from "ui/validation_engine";
 
 import "ui/text_area";
+import "ui/form";
 
 import "common.css!";
 import "generic_light.css!";
 
+const FORM_CLASS = "dx-form";
+const FORM_GROUP_CLASS = "dx-form-group";
+const FORM_GROUP_CAPTION_CLASS = "dx-form-group-caption";
+const FIELD_ITEM_CLASS = "dx-field-item";
+const FIELD_ITEM_CONTENT_CLASS = "dx-field-item-content";
+const FIELD_ITEM_LABEL_CONTENT_CLASS = "dx-field-item-label-content";
+const FIELD_ITEM_HELP_TEXT_CLASS = "dx-field-item-help-text";
+const FORM_FIELD_ITEM_COL_CLASS = "dx-col-";
 const FORM_GROUP_CONTENT_CLASS = "dx-form-group-content";
 const MULTIVIEW_ITEM_CONTENT_CLASS = "dx-multiview-item-content";
 const FORM_LAYOUT_MANAGER_CLASS = "dx-layout-manager";
@@ -96,9 +104,9 @@ QUnit.module("Form", () => {
         });
 
         // assert
-        assert.ok($formContainer.hasClass(internals.FORM_CLASS), "Form is rendered");
+        assert.ok($formContainer.hasClass(FORM_CLASS), "Form is rendered");
         assert.equal($formContainer.attr("role"), "form", "Form has correct attribute");
-        assert.equal($formContainer.find("." + internals.FORM_LAYOUT_MANAGER_CLASS).length, 1, "Layout manager is rendered");
+        assert.equal($formContainer.find("." + FORM_LAYOUT_MANAGER_CLASS).length, 1, "Layout manager is rendered");
     });
 
     test("Check the default focus target", function(assert) {
@@ -190,7 +198,7 @@ QUnit.module("Form", () => {
         });
 
         // assert
-        assert.ok($formContainer.find("." + internals.FIELD_ITEM_CLASS + " .dx-texteditor").hasClass("dx-state-readonly"), "editor is read only");
+        assert.ok($formContainer.find("." + FIELD_ITEM_CLASS + " .dx-texteditor").hasClass("dx-state-readonly"), "editor is read only");
     });
 
     test("Render form with colspan", function(assert) {
@@ -214,7 +222,7 @@ QUnit.module("Form", () => {
             }]
         });
 
-        let $fieldItems = $testContainer.find("." + internals.FIELD_ITEM_CLASS);
+        let $fieldItems = $testContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.equal($fieldItems.length, 5, "4 simple items + 1 group item");
@@ -231,12 +239,12 @@ QUnit.module("Form", () => {
             ]
         });
 
-        assert.notOk($formContainer.find("." + internals.FIELD_ITEM_CLASS + " .dx-texteditor").hasClass("dx-state-readonly"), "editor isn't read only");
+        assert.notOk($formContainer.find("." + FIELD_ITEM_CLASS + " .dx-texteditor").hasClass("dx-state-readonly"), "editor isn't read only");
 
         $formContainer.dxForm("instance").option("readOnly", true);
 
         // assert
-        assert.ok($formContainer.find("." + internals.FIELD_ITEM_CLASS + " .dx-texteditor").hasClass("dx-state-readonly"), "editor is read only");
+        assert.ok($formContainer.find("." + FIELD_ITEM_CLASS + " .dx-texteditor").hasClass("dx-state-readonly"), "editor is read only");
     });
 
     test("'disable' is changed in inner components on optionChanged", function(assert) {
@@ -251,12 +259,12 @@ QUnit.module("Form", () => {
             disabled: true
         });
 
-        assert.ok($formContainer.find("." + internals.FIELD_ITEM_CLASS + " .dx-texteditor").hasClass("dx-state-disabled"), "editor is disabled");
+        assert.ok($formContainer.find("." + FIELD_ITEM_CLASS + " .dx-texteditor").hasClass("dx-state-disabled"), "editor is disabled");
 
         $formContainer.dxForm("instance").option("disabled", false);
 
         // assert
-        assert.notOk($formContainer.find("." + internals.FIELD_ITEM_CLASS + " .dx-texteditor").hasClass("dx-state-disabled"), "editor isn't disabled");
+        assert.notOk($formContainer.find("." + FIELD_ITEM_CLASS + " .dx-texteditor").hasClass("dx-state-disabled"), "editor isn't disabled");
     });
 
     test("Customize item event", function(assert) {
@@ -291,8 +299,8 @@ QUnit.module("Form", () => {
                 }
             });
 
-        let items = $formContainer.find("." + internals.FORM_LAYOUT_MANAGER_CLASS).first().dxLayoutManager("instance")._items,
-            visibleItems = $formContainer.find("." + internals.FIELD_ITEM_CLASS);
+        let items = $formContainer.find("." + FORM_LAYOUT_MANAGER_CLASS).first().dxLayoutManager("instance")._items,
+            visibleItems = $formContainer.find("." + FIELD_ITEM_CLASS);
 
         // assert
         assert.equal(items.length, 3, "items count");
@@ -546,7 +554,7 @@ QUnit.module("Form", () => {
         let $formContainer = $("#form").dxForm({
                 formData: { name: "Test", lastName: "surname" }
             }),
-            $layoutManager = $formContainer.find("." + internals.FORM_LAYOUT_MANAGER_CLASS).first().dxLayoutManager("instance");
+            $layoutManager = $formContainer.find("." + FORM_LAYOUT_MANAGER_CLASS).first().dxLayoutManager("instance");
 
         // assert
         assert.equal($layoutManager.option("alignItemLabels"), true);
@@ -574,7 +582,7 @@ QUnit.module("Form", () => {
 
         // assert
         assert.ok($formContainer.hasClass("dx-scrollable"), "has scrollable");
-        assert.equal($formContainer.find(".dx-scrollable-content > ." + internals.FORM_LAYOUT_MANAGER_CLASS).length, 1, "scrollable content");
+        assert.equal($formContainer.find(".dx-scrollable-content > ." + FORM_LAYOUT_MANAGER_CLASS).length, 1, "scrollable content");
     });
 
     test("Show validation summary", function(assert) {
@@ -649,7 +657,7 @@ QUnit.module("Form", () => {
 
         // assert
         assert.equal($("#form .dx-textbox").dxTextBox("option", "value"), "Batman");
-        assert.equal(form.$element().find("." + internals.FORM_FIELD_ITEM_COL_CLASS + "0").length, 1);
+        assert.equal(form.$element().find("." + FORM_FIELD_ITEM_COL_CLASS + "0").length, 1);
 
         // act
         form.option("colCount", 1);
@@ -657,7 +665,7 @@ QUnit.module("Form", () => {
 
         // assert
         assert.equal($("#form .dx-textbox").dxTextBox("option", "value"), "Batman");
-        assert.equal(form.$element().find("." + internals.FORM_FIELD_ITEM_COL_CLASS + "0").length, 1);
+        assert.equal(form.$element().find("." + FORM_FIELD_ITEM_COL_CLASS + "0").length, 1);
     });
 
     test("Render form item with specific class", function(assert) {
@@ -700,10 +708,10 @@ QUnit.module("Form", () => {
         });
 
         // assert
-        assert.equal($testContainer.find("." + internals.FIELD_ITEM_CLASS + ".custom-group-class").length, 1, "custom class for group");
-        assert.equal($testContainer.find("." + internals.FIELD_ITEM_CLASS + ".myFavoriteItem").length, 1, "custom class for item in group");
-        assert.equal($testContainer.find("." + internals.FIELD_ITEM_CLASS + ".custom-tabbed-class").length, 1, "custom class for tabbed");
-        assert.equal($testContainer.find("." + internals.FIELD_ITEM_CLASS + " .custom-empty-class").length, 1, "custom class for empty");
+        assert.equal($testContainer.find("." + FIELD_ITEM_CLASS + ".custom-group-class").length, 1, "custom class for group");
+        assert.equal($testContainer.find("." + FIELD_ITEM_CLASS + ".myFavoriteItem").length, 1, "custom class for item in group");
+        assert.equal($testContainer.find("." + FIELD_ITEM_CLASS + ".custom-tabbed-class").length, 1, "custom class for tabbed");
+        assert.equal($testContainer.find("." + FIELD_ITEM_CLASS + " .custom-empty-class").length, 1, "custom class for empty");
     });
 
     test("Validation boundary for editors when scrolling is enabled_T306331", function(assert) {
@@ -1041,27 +1049,27 @@ QUnit.module("Grouping", () => {
                         ]
                     }]
             }),
-            $captions = $formContainer.find("." + internals.FORM_GROUP_CLASS + " ." + internals.FORM_GROUP_CAPTION_CLASS),
-            $groups = $formContainer.find("." + internals.FORM_GROUP_CLASS),
+            $captions = $formContainer.find("." + FORM_GROUP_CLASS + " ." + FORM_GROUP_CAPTION_CLASS),
+            $groups = $formContainer.find("." + FORM_GROUP_CLASS),
             $labelTexts;
 
         // assert
-        assert.equal($formContainer.find("." + internals.FIELD_ITEM_CONTENT_CLASS).eq(0).children().length, 1, "item content has only element with group");
+        assert.equal($formContainer.find("." + FIELD_ITEM_CONTENT_CLASS).eq(0).children().length, 1, "item content has only element with group");
 
         assert.equal($captions.length, 0, "captions count");
         assert.equal($groups.length, 3, "group elements count");
-        assert.equal($groups.eq(0).find("." + internals.FIELD_ITEM_CLASS).length, 2, "group1 field items count");
+        assert.equal($groups.eq(0).find("." + FIELD_ITEM_CLASS).length, 2, "group1 field items count");
 
-        $labelTexts = $groups.eq(0).find("." + internals.FIELD_ITEM_LABEL_CONTENT_CLASS);
+        $labelTexts = $groups.eq(0).find("." + FIELD_ITEM_LABEL_CONTENT_CLASS);
         assert.equal($labelTexts.eq(0).text(), "First Name:", "group1 label text 1");
         assert.equal($labelTexts.eq(1).text(), "Last Name:", "group1 label text 2");
 
-        assert.equal($groups.eq(1).find("." + internals.FIELD_ITEM_CLASS).length, 1, "group2 field items count");
-        $labelTexts = $groups.eq(1).find("." + internals.FIELD_ITEM_LABEL_CONTENT_CLASS);
+        assert.equal($groups.eq(1).find("." + FIELD_ITEM_CLASS).length, 1, "group2 field items count");
+        $labelTexts = $groups.eq(1).find("." + FIELD_ITEM_LABEL_CONTENT_CLASS);
         assert.equal($labelTexts.eq(0).text(), "Photo:", "group2 label text 1");
 
-        assert.equal($groups.eq(2).find("." + internals.FIELD_ITEM_CLASS).length, 2, "group3 field items count");
-        $labelTexts = $groups.eq(2).find("." + internals.FIELD_ITEM_LABEL_CONTENT_CLASS);
+        assert.equal($groups.eq(2).find("." + FIELD_ITEM_CLASS).length, 2, "group3 field items count");
+        $labelTexts = $groups.eq(2).find("." + FIELD_ITEM_LABEL_CONTENT_CLASS);
         assert.equal($labelTexts.eq(0).text(), "Address city:", "group3 label text 1");
         assert.equal($labelTexts.eq(1).text(), "Address street:", "group3 label text 2");
     });
@@ -1114,7 +1122,7 @@ QUnit.module("Grouping", () => {
                         ]
                     }]
             }),
-            $layoutManagers = $formContainer.find("." + internals.FORM_GROUP_CLASS + " ." + internals.FORM_LAYOUT_MANAGER_CLASS);
+            $layoutManagers = $formContainer.find("." + FORM_GROUP_CLASS + " ." + FORM_LAYOUT_MANAGER_CLASS);
 
         // assert
         assert.equal($layoutManagers.length, 3);
@@ -1144,7 +1152,7 @@ QUnit.module("Grouping", () => {
                         ]
                     }]
             }),
-            $captions = $formContainer.find("." + internals.FORM_GROUP_CLASS + " ." + internals.FORM_GROUP_CAPTION_CLASS);
+            $captions = $formContainer.find("." + FORM_GROUP_CLASS + " ." + FORM_GROUP_CAPTION_CLASS);
 
         // assert
         assert.equal($captions.length, 1);
@@ -1169,7 +1177,7 @@ QUnit.module("Grouping", () => {
                         ]
                     }]
             }),
-            $helpTextElement = $formContainer.find("." + internals.FIELD_ITEM_HELP_TEXT_CLASS);
+            $helpTextElement = $formContainer.find("." + FIELD_ITEM_HELP_TEXT_CLASS);
 
         // assert
         assert.equal($helpTextElement.length, 0, "There is no helpText element");
@@ -1208,7 +1216,7 @@ QUnit.module("Grouping", () => {
                         }
                     }]
             }),
-            $groups = $formContainer.find("." + internals.FORM_GROUP_CLASS);
+            $groups = $formContainer.find("." + FORM_GROUP_CLASS);
 
         // assert
         assert.equal($groups.length, 2, "2 groups rendered");
@@ -1286,42 +1294,42 @@ QUnit.module("Grouping", () => {
             model: {},
             container: template
         });
-        assert.equal(template.find("> ." + internals.FORM_GROUP_CLASS).length, 1, "external group 1");
+        assert.equal(template.find("> ." + FORM_GROUP_CLASS).length, 1, "external group 1");
         template.empty();
 
         items[0].items[0].template.render({
             model: {},
             container: template
         });
-        assert.equal(template.find("> ." + internals.FORM_GROUP_CLASS).length, 1, "external group 1 internal group 1");
+        assert.equal(template.find("> ." + FORM_GROUP_CLASS).length, 1, "external group 1 internal group 1");
         template.empty();
 
         items[0].items[1].template.render({
             model: {},
             container: template
         });
-        assert.equal(template.find("> ." + internals.FORM_GROUP_CLASS).length, 1, "external group 1 internal group 2");
+        assert.equal(template.find("> ." + FORM_GROUP_CLASS).length, 1, "external group 1 internal group 2");
         template.empty();
 
         items[1].template.render({
             model: {},
             container: template
         });
-        assert.equal(template.find("> ." + internals.FORM_GROUP_CLASS).length, 1, "external group 1");
+        assert.equal(template.find("> ." + FORM_GROUP_CLASS).length, 1, "external group 1");
         template.empty();
 
         items[1].items[0].template.render({
             model: {},
             container: template
         });
-        assert.equal(template.find("> ." + internals.FORM_GROUP_CLASS).length, 1, "external group 2 internal group 1");
+        assert.equal(template.find("> ." + FORM_GROUP_CLASS).length, 1, "external group 2 internal group 1");
         template.empty();
 
         items[1].items[1].template.render({
             model: {},
             container: template
         });
-        assert.equal(template.find("> ." + internals.FORM_GROUP_CLASS).length, 1, "external group 2 internal group 2");
+        assert.equal(template.find("> ." + FORM_GROUP_CLASS).length, 1, "external group 2 internal group 2");
         template.empty();
 
         template.remove();
@@ -1356,14 +1364,14 @@ QUnit.module("Grouping", () => {
             form = $formContainer.dxForm("instance");
 
         // act
-        let $formGroups = $formContainer.find("." + internals.FORM_GROUP_CLASS);
+        let $formGroups = $formContainer.find("." + FORM_GROUP_CLASS);
 
         // assert
         assert.equal($formGroups.length, 3, "3 groups were rendered");
 
         // act
         form.option("items[0].items[1].visible", false);
-        $formGroups = $formContainer.find("." + internals.FORM_GROUP_CLASS);
+        $formGroups = $formContainer.find("." + FORM_GROUP_CLASS);
 
         // assert
         assert.equal($formGroups.length, 2, "Two groups were rendered");
@@ -1450,7 +1458,7 @@ QUnit.module("Tabs", {
         assert.equal(tabPanelItems.length, 2, "items count in tab panel");
         assert.equal(tabPanelItems[0].title, "Address1", "title of tab 1");
         assert.equal(tabPanelItems[1].title, "Address2", "title of tab 2");
-        assert.notEqual(testContainer.find(".dx-multiview-item ." + internals.FORM_LAYOUT_MANAGER_CLASS).length, 0, "layout manager inside multiview item");
+        assert.notEqual(testContainer.find(".dx-multiview-item ." + FORM_LAYOUT_MANAGER_CLASS).length, 0, "layout manager inside multiview item");
     });
 
     test("Render tabs with groups", function(assert) {
@@ -1499,17 +1507,17 @@ QUnit.module("Tabs", {
         });
 
         clock.tick();
-        let $groups = testContainer.find(".dx-item-selected " + "." + internals.FORM_GROUP_CLASS);
+        let $groups = testContainer.find(".dx-item-selected " + "." + FORM_GROUP_CLASS);
 
         // assert
         assert.equal($groups.length, 2);
-        assert.equal($groups.eq(0).find("." + internals.FIELD_ITEM_CLASS).length, 2, "group 1");
-        assert.equal($groups.eq(1).find("." + internals.FIELD_ITEM_CLASS).length, 2, "group 2");
+        assert.equal($groups.eq(0).find("." + FIELD_ITEM_CLASS).length, 2, "group 1");
+        assert.equal($groups.eq(1).find("." + FIELD_ITEM_CLASS).length, 2, "group 2");
 
         // act
         testContainer.find(".dx-tabpanel").dxTabPanel("instance").option("selectedIndex", 1);
-        $groups = testContainer.find(".dx-item-selected " + "." + internals.FORM_GROUP_CLASS);
-        assert.equal($groups.eq(0).find("." + internals.FIELD_ITEM_CLASS).length, 2, "group 1");
+        $groups = testContainer.find(".dx-item-selected " + "." + FORM_GROUP_CLASS);
+        assert.equal($groups.eq(0).find("." + FIELD_ITEM_CLASS).length, 2, "group 1");
 
         // assert
         assert.notEqual($groups.length, 0);
