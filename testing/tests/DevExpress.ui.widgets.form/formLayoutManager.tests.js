@@ -4,6 +4,7 @@ import "ui/switch";
 import "ui/lookup";
 import "ui/text_area";
 import "ui/radio_group";
+import { extend } from "core/utils/extend";
 
 import "common.css!";
 
@@ -11,6 +12,13 @@ const FIELD_ITEM_CLASS = "dx-field-item";
 const FIELD_ITEM_LABEL_CLASS = "dx-field-item-label";
 const FIELD_ITEM_LABEL_ALIGN_CLASS = "dx-field-item-label-align";
 const FLEX_LAYOUT_CLASS = "dx-flex-layout";
+
+const createLayoutManager = options => $("#container").dxLayoutManager(extend({
+    form: {
+        option: () => {},
+        getItemID: () => {}
+    }
+}, options));
 
 QUnit.testStart(function() {
     var markup =
@@ -46,7 +54,7 @@ QUnit.test("Layout strategy when flex is not supported", function(assert) {
                 editorType: "dxTextArea"
             }
         ],
-        $testContainer = $("#container").dxLayoutManager(),
+        $testContainer = createLayoutManager(),
         layoutManager = $testContainer.dxLayoutManager("instance");
 
     // act
@@ -85,7 +93,7 @@ QUnit.test("Layout strategy when flex is supported", function(assert) {
                 editorType: "dxTextArea"
             }
         ],
-        $testContainer = $("#container").dxLayoutManager(),
+        $testContainer = createLayoutManager(),
         layoutManager = $testContainer.dxLayoutManager("instance");
 
     // act
@@ -124,7 +132,7 @@ QUnit.test("Check label alignment classes when browser is not supported flex", f
                 editorType: "dxTextArea"
             }
         ],
-        $testContainer = $("#container").dxLayoutManager(),
+        $testContainer = createLayoutManager(),
         layoutManager = $testContainer.dxLayoutManager("instance"),
         $items;
 
@@ -146,7 +154,7 @@ QUnit.test("Check label alignment classes when browser is not supported flex", f
 QUnit.test("Check clickable fielditem", function(assert) {
     // arrange
     var clock = sinon.useFakeTimers(),
-        $testContainer = $("#container").dxLayoutManager({
+        $testContainer = createLayoutManager({
             items: [
                 {
                     dataField: "isRich",
@@ -179,7 +187,7 @@ QUnit.test("Check clickable fielditem", function(assert) {
 
 QUnit.test("Generate several various widgets in layout", function(assert) {
     // arrange, act
-    var $testContainer = $("#container").dxLayoutManager({
+    var $testContainer = createLayoutManager({
             items: [
                 {
                     label: { text: "label1" },
@@ -212,14 +220,13 @@ QUnit.test("Generate several various widgets in layout", function(assert) {
 QUnit.test("Editors with object value correctly work with values from data", function(assert) {
     // arrange, act
     var layoutManager,
-        $testContainer = $("#container"),
         items = [
             { myText: "test1", number: 1 },
             { myText: "test2", number: 2 },
             { myText: "test3", number: 3 }
         ];
 
-    layoutManager = $testContainer.dxLayoutManager({
+    layoutManager = createLayoutManager({
         layoutData: { testItem: items[1] },
         items: [
             {
@@ -245,7 +252,7 @@ QUnit.test("Change a layoutData object", function(assert) {
         layoutManager,
         $testContainer = $("#container");
 
-    layoutManager = $testContainer.dxLayoutManager({
+    layoutManager = createLayoutManager({
         layoutData: {
             name: "Patti",
             active: true,
@@ -288,7 +295,12 @@ QUnit.test("onEditorEnterKey", function(assert) {
         editor,
         layoutManager;
 
-    layoutManager = $("#container").dxLayoutManager({
+    layoutManager = createLayoutManager({
+        form: {
+            option: () => {},
+            getItemID: () => "",
+            _createActionByOption: (optionName, config) => layoutManager._createActionByOption(optionName, config)
+        },
         layoutData: {
             name: "Test Name",
             profession: "Test profession"
@@ -328,7 +340,7 @@ QUnit.test("Should save layoutData properties by reference (T706177)", function(
         { id: 2, name: "name2" }
     ];
 
-    const layoutManager = $("#container").dxLayoutManager({
+    const layoutManager = createLayoutManager({
         layoutData: { id: 1, field: items[0] },
         items: [{
             dataField: "field",
@@ -350,7 +362,7 @@ QUnit.test("Should save layoutData properties by reference (T706177)", function(
 });
 
 QUnit.test("Change items from [1] -> []", function(assert) {
-    const layoutManager = $("#container").dxLayoutManager({
+    const layoutManager = createLayoutManager({
         formData: {
             name: "TestName"
         },
@@ -369,7 +381,7 @@ QUnit.test("Change from fixed colCount to auto and vice versa", function(assert)
     // arrange
     var $testContainer = $("#container").width(450);
 
-    $testContainer.dxLayoutManager({
+    createLayoutManager({
         layoutData: { test1: "abc", test2: "qwe", test3: "xyz" },
         colCount: 1,
         minColWidth: 200
