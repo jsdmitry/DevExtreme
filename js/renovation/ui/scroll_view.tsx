@@ -98,6 +98,30 @@ export default class ScrollView extends JSXComponent(ScrollViewProps) {
 
   @Method()
   scrollBy(distance: number | Partial<Location>): void {
+    this.scrollByInternal(distance);
+  }
+
+  @Method()
+  scrollTo(targetLocation: number | Partial<Location>): void {
+    this.scrollToInternal(targetLocation);
+  }
+
+  @Method()
+  scrollToElement(element: HTMLElement): void {
+    if (element.closest(`.${SCROLLABLE_CONTENT_CLASS}`)) {
+      this.scrollToInternal({
+        top: this.getScrollTopLocation(element),
+        left: this.getScrollLeftLocation(element),
+      });
+    }
+  }
+
+  get cssClasses(): string {
+    const { direction } = this.props;
+    return `dx-scrollview dx-scrollable dx-scrollable-${direction} dx-scrollable-native dx-scrollable-native-generic`;
+  }
+
+  private scrollByInternal(distance: number | Partial<Location>): void {
     const { direction } = this.props;
     const location = ensureLocation(distance);
 
@@ -109,28 +133,12 @@ export default class ScrollView extends JSXComponent(ScrollViewProps) {
     }
   }
 
-  @Method()
-  scrollTo(targetLocation: number | Partial<Location>): void {
+  private scrollToInternal(targetLocation: number | Partial<Location>): void {
     const location = ensureLocation(targetLocation);
-    this.scrollBy({
+    this.scrollByInternal({
       left: location.left - this.getScrollLocation().left,
       top: location.top - this.getScrollLocation().top,
     });
-  }
-
-  @Method()
-  scrollToElement(element: HTMLElement): void {
-    if (element.closest(`.${SCROLLABLE_CONTENT_CLASS}`)) {
-      this.scrollTo({
-        top: this.getScrollTopLocation(element),
-        left: this.getScrollLeftLocation(element),
-      });
-    }
-  }
-
-  get cssClasses(): string {
-    const { direction } = this.props;
-    return `dx-scrollview dx-scrollable dx-scrollable-${direction} dx-scrollable-native dx-scrollable-native-generic`;
   }
 
   private getScrollBarWidth(): number {
